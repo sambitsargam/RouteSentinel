@@ -1,118 +1,87 @@
 # RouteSentinel
 
-Execution-aware swap safety skill for X Layer.
-
-RouteSentinel helps agents avoid bad swaps by combining candidate scouting, route-quality checks, security gates, micro-test execution, and proof-grade reporting.
-
-## Track
+> Execution-aware swap safety skill for autonomous agents on X Layer.
 
 `ProjectSubmission SkillArena`
 
-## Winning Readiness Check (As Of April 15, 2026)
+RouteSentinel is a reusable skill that blocks unsafe swaps before execution. It combines candidate scouting, route-quality checks, token/tx security scanning, and proof-grade reporting in one flow.
 
-Based on a full paginated scan of `m/buildx` public feed:
+## Problem
 
-- BuildX feed posts analyzed: `4,234`
-- Submission-style posts found: `2,530`
-- SkillArena submissions found: `16`
-- Current top SkillArena post score: `9`
+Agents can execute faster than humans, but most trading flows still fail in two places:
 
-### Where RouteSentinel Is Strong
+- token risk is checked too late,
+- route quality is not validated before spending funds.
 
-- Real on-chain execution evidence with tx hashes and machine reports.
-- Safety-first design (`token-scan`, `tx-scan`, hard notional cap).
-- Reusable skill packaging (`skills/routesentinel-skill`) aligned to plugin-store format.
-- Judge-friendly command flow (`npm run judge`).
+Result: bad fills, honeypot exposure, and no transparent proof for users.
 
-### What Still Decides 1st Place
+## What We Built
 
-- Community traction (upvotes + comments) during final window.
-- Clear public positioning and proof narrative.
-- Demonstrated integration depth and practical reusability by other agents.
+RouteSentinel is a fail-closed swap pipeline for X Layer:
 
-## What RouteSentinel Does
+1. `scout` discovers candidate tokens from live signal sources.
+2. Route-quality guard runs forward + reverse quote checks.
+3. `token-scan` gate blocks critical token risk.
+4. `tx-scan` gate blocks critical transaction risk.
+5. `phasec` runs dry by default and only goes live with explicit confirmation.
+6. `proofboard` aggregates machine-readable evidence for judges and users.
 
-1. `scout`: builds candidate set from live signal + leaderboard + tracker data.
-2. Route quality check: evaluates forward quote + reverse quote round-trip quality.
-3. Risk gates: blocks critical token risk and critical tx-scan risk.
-4. `phasec`: executes dry-run by default; only runs live with explicit confirmation.
-5. `proofboard`: outputs reproducible execution/audit scoreboard.
+## Why This Is Useful
 
-## Why This Matters For Real Users
-
-- Prevents low-quality routes from being selected only by hype signals.
-- Reduces catastrophic mistakes using deterministic pre-trade checks.
-- Keeps test exposure tiny (`MAX_TEST_USD=0.30` default).
-- Produces transparent artifacts that users and judges can verify.
+- Safer default behavior for agent swaps.
+- Tiny test-notional guardrail (`MAX_TEST_USD=0.30` default).
+- One-command judge flow (`npm run judge`) with reproducible artifacts.
+- Reusable skill packaging for other agents (`skills/routesentinel-skill/`).
 
 ## Architecture
 
 ```mermaid
 flowchart TD
-  A[Scout Candidates\nSignal + Leaderboard + Tracker] --> B[Route Quality Check\nForward + Reverse Quote]
-  B --> C[Security Gates\nToken Scan + Tx Scan]
-  C --> D[Execution\nMicro-Test Only]
-  D --> E[Audit\nExecution Ratio Verdict]
-  E --> F[Proofboard\nScoreboard + JSON Reports]
+  A[Scout Candidates] --> B[Route Quality Check]
+  B --> C[Token Risk Gate]
+  C --> D[Tx Risk Gate]
+  D --> E[Micro Execution]
+  E --> F[Audit]
+  F --> G[Proofboard]
 ```
 
-## BuildX Prerequisites
+## Quick Start
 
-1. Install `onchainos` CLI:
+### 1) Install prerequisites
 
 ```bash
 onchainos --version || curl -fsSL https://raw.githubusercontent.com/okx/onchainos-skills/main/install.sh | sh
-```
-
-2. Install OnchainOS skills:
-
-```bash
 npx skills add okx/onchainos-skills --yes --global
-```
-
-3. Generate your OnchainOS API key:
-
-- https://web3.okx.com/onchainos/dev-portal
-
-4. Install Agentic Wallet:
-
-- https://web3.okx.com/onchainos/dev-docs/wallet/install-your-agentic-wallet
-
-## Judge Quick Start
-
-1. Install dependencies:
-
-```bash
 cp .env.example .env
 npm install
 ```
 
-2. Set required values in `.env`:
+Get OnchainOS API key:
+- https://web3.okx.com/onchainos/dev-portal
+
+Install Agentic Wallet:
+- https://web3.okx.com/onchainos/dev-docs/wallet/install-your-agentic-wallet
+
+### 2) Configure env
 
 ```env
 ONCHAINOS_BIN=onchainos
 MAX_TEST_USD=0.30
 ```
 
-3. Dry-run judge flow (recommended first):
+### 3) Run judge flow (dry-run first)
 
 ```bash
 npm run judge -- --wallet <wallet> --chain xlayer
 ```
 
-4. Live micro-test (explicit opt-in only):
+### 4) Live micro-test (explicit opt-in)
 
 ```bash
 npm run judge -- --wallet <wallet> --chain xlayer --confirm-live yes
 ```
 
-5. Interactive non-technical flow:
-
-```bash
-npm run wizard
-```
-
-## Core Commands
+## CLI Commands
 
 ```bash
 npm run plan -- --from <from_token> --to <to_token> --amount <ui_amount> --chain <chain> [--wallet <wallet>]
@@ -130,6 +99,15 @@ npm run judge -- --wallet <wallet> --chain <chain> [--confirm-live yes]
 npm run wizard
 ```
 
+## Safety Model (Fail-Closed)
+
+Trade is blocked if any of these is true:
+
+- notional exceeds `MAX_TEST_USD`,
+- token-scan shows critical risk,
+- tx-scan shows critical risk,
+- live mode requested without `--confirm-live yes`.
+
 ## Proof Snapshot
 
 From [`proof/reports/scoreboard.md`](./proof/reports/scoreboard.md):
@@ -140,7 +118,6 @@ From [`proof/reports/scoreboard.md`](./proof/reports/scoreboard.md):
 - Pass rate: `100.00%`
 - Average execution ratio: `1.000000`
 - Total tested notional: `$0.643950`
-- Max single-test notional: `$0.215050`
 
 Recent tx hashes:
 
@@ -148,47 +125,24 @@ Recent tx hashes:
 - `0xa37c9d2c68368c9e488b4fe8348c34fee8089e0535be0c4777b35f118f5feac5`
 - `0x62106f435561236f864575997dd733fdf124291cb14594a5fd471198b4d139fe`
 
-## SkillArena Scoring Alignment
+## Skill Package (Plugin-Store Style)
 
-Official SkillArena judging dimensions are 25% each.
-
-| Dimension | RouteSentinel Evidence | Current Status |
-|---|---|---|
-| Integration & Innovation | OnchainOS-driven quote/scan/execute flow, reusable CLI skill packaging | Strong |
-| X Layer Fit & On-Chain Activity | X Layer micro-test executions + verifiable tx hashes | Strong |
-| AI Interaction & Novelty | Signal-driven candidate selection + route-quality intelligence | Strong |
-| Product Completeness & Commercial Potential | End-to-end commands (`judge`, `wizard`), safety defaults, proof outputs | Strong |
+- [`skills/routesentinel-skill/plugin.yaml`](./skills/routesentinel-skill/plugin.yaml)
+- [`skills/routesentinel-skill/.claude-plugin/plugin.json`](./skills/routesentinel-skill/.claude-plugin/plugin.json)
+- [`skills/routesentinel-skill/SKILL.md`](./skills/routesentinel-skill/SKILL.md)
 
 ## Repository Layout
 
-- `src/cli.mjs`: core command engine (`plan`, `simulate`, `execute`, `audit`, `intel`, `scout`, `phaseb`, `phasec`, `proofboard`)
-- `src/judge.mjs`: one-command judge report generator
-- `src/wizard.mjs`: interactive runner for non-technical users
-- `proof/reports/`: machine-readable execution and scoring artifacts
-- `submission/`: generated judge markdown outputs
-- `skills/routesentinel-skill/`: plugin-store style skill package
+- `src/cli.mjs` - core engine and guardrails
+- `src/judge.mjs` - judge report generator
+- `src/wizard.mjs` - interactive run flow
+- `proof/reports/` - machine-readable artifacts
+- `submission/` - generated judge markdown
 
-## Official Skill Package
+## Contact
 
-Plugin-store compatible package lives in:
-
-- `skills/routesentinel-skill/plugin.yaml`
-- `skills/routesentinel-skill/.claude-plugin/plugin.json`
-- `skills/routesentinel-skill/SKILL.md`
-
-## Safety Defaults
-
-- Hard cap: `MAX_TEST_USD=0.30`
-- Live execution requires `--confirm-live yes`
-- Critical token scan risk blocks simulation/execution
-- Critical tx-scan risk blocks execution
-- `phasec` defaults to dry-run
-
-## Submission Assets
-
-- Project narrative: [`SUBMISSION.md`](./SUBMISSION.md)
-- Aggregate scoreboard: [`proof/reports/scoreboard.md`](./proof/reports/scoreboard.md)
-- Judge run sample: [`submission/2026-04-14T19-03-56.779Z-judge-run.md`](./submission/2026-04-14T19-03-56.779Z-judge-run.md)
+- Telegram: `@shakti0675`
+- GitHub: [sambitsargam/RouteSentinel](https://github.com/sambitsargam/RouteSentinel)
 
 ## License
 
