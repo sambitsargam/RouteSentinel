@@ -1,0 +1,32 @@
+{
+  "command": "scout",
+  "createdAt": "2026-04-14T19:03:40.179Z",
+  "request": {
+    "chain": "xlayer",
+    "maxCandidates": 6,
+    "timeFrame": "3",
+    "sortBy": "5",
+    "minSignalAmountUsd": null,
+    "includeTokens": []
+  },
+  "upstream": {
+    "signal": {
+      "ok": false,
+      "error": "request failed: error sending request for url (https://web3.okx.com/api/v6/dex/market/signal/list): client error (Connect): dns error: failed to lookup address information: nodename nor servname provided, or not known",
+      "rows": 0
+    },
+    "leaderboard": {
+      "ok": false,
+      "error": "request failed: error sending request for url (https://web3.okx.com/api/v6/dex/market/leaderboard/list?chainIndex=196&timeFrame=3&sortBy=5): client error (Connect): dns error: failed to lookup address information: nodename nor servname provided, or not known",
+      "rows": 0
+    },
+    "tracker": {
+      "ok": false,
+      "error": "request failed: error sending request for url (https://web3.okx.com/api/v6/dex/market/address-tracker/trades?trackerType=1&chainIndex=196): client error (Connect): dns error: failed to lookup address information: nodename nor servname provided, or not known",
+      "rows": 0
+    }
+  },
+  "candidateUniverseSize": 0,
+  "ranking": [],
+  "nextCandidate": null
+}
