@@ -1,0 +1,14 @@
+{
+  "name": "routesentinel",
+  "version": "0.1.0",
+  "private": true,
+  "description": "RouteSentinel SkillArena MVP with strict micro-test risk controls.",
+  "type": "module",
+  "scripts": {
+    "plan": "node src/cli.mjs plan",
+    "simulate": "node src/cli.mjs simulate",
+    "execute": "node src/cli.mjs execute",
+    "audit": "node src/cli.mjs audit"
+  }
+}
+
