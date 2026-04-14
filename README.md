@@ -16,6 +16,7 @@ npm run audit -- [--file <proof/reports/...-execute.json>]
 - Hard cap for live test notional: `MAX_TEST_USD=0.30` (default).
 - Any simulation above cap is blocked before execution.
 - Reports are saved to `proof/reports/`.
+- `audit` produces an execution verdict (`excellent`, `good`, `acceptable`, `needs_review`) based on expected vs actual output ratio.
 
 ## Env Setup
 

@@ -235,6 +235,8 @@ function execute(opts) {
     },
     guardrails: sim.report.guardrails,
     simulationReportFile: sim.file,
+    quoteSnapshot: sim.report.quote,
+    tokenScanSnapshot: sim.report.tokenScan,
     execution: execData
   };
   const file = writeReport("execute", report);
@@ -256,6 +258,24 @@ function audit(opts) {
   const parsed = JSON.parse(raw);
 
   const execution = parsed.execution || {};
+  const quote = parsed.quoteSnapshot || {};
+
+  const expectedToRaw = Number(quote.toTokenAmount || 0);
+  const actualToRaw = Number(execution.toAmount || 0);
+  const toDecimals = Number(execution.toToken?.decimal || quote.toToken?.decimal || 0);
+  const expectedToUi = toDecimals ? expectedToRaw / 10 ** toDecimals : 0;
+  const actualToUi = toDecimals ? actualToRaw / 10 ** toDecimals : 0;
+  const executionRatio =
+    expectedToRaw > 0 && actualToRaw > 0 ? actualToRaw / expectedToRaw : null;
+
+  let verdict = "insufficient_data";
+  if (executionRatio !== null) {
+    if (executionRatio >= 0.995) verdict = "excellent";
+    else if (executionRatio >= 0.99) verdict = "good";
+    else if (executionRatio >= 0.97) verdict = "acceptable";
+    else verdict = "needs_review";
+  }
+
   const summary = {
     auditedAt: new Date().toISOString(),
     reportFile,
@@ -267,7 +287,13 @@ function audit(opts) {
     priceImpact: execution.priceImpact || null,
     gasUsed: execution.gasUsed || null,
     capUsd: parsed.guardrails?.maxTestUsd || MAX_TEST_USD,
-    notionalUsd: parsed.guardrails?.notionalUsd || null
+    notionalUsd: parsed.guardrails?.notionalUsd || null,
+    expectedToRaw: quote.toTokenAmount || null,
+    actualToRaw: execution.toAmount || null,
+    expectedToUi,
+    actualToUi,
+    executionRatio,
+    verdict
   };
   const file = writeReport("audit", summary);
   return { report: summary, file };
