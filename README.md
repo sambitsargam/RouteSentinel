@@ -14,6 +14,10 @@ npm run audit -- [--file <proof/reports/...-execute.json>]
 npm run intel -- --to <to_token> --chain <chain>
 npm run proofboard
 npm run phaseb -- --from <from_token> --to <to_token> --amount <ui_amount> --chain <chain> --wallet <wallet> --confirm-live yes [--force-intel yes]
+
+# Phase C auto-selection
+npm run scout -- --chain <chain> [--max-candidates 12]
+npm run phasec -- --from <from_token> --amount <ui_amount> --chain <chain> --wallet <wallet> [--to <to_token>] [--confirm-live yes]
 ```
 
 ## What Phase B Adds
@@ -23,6 +27,12 @@ npm run phaseb -- --from <from_token> --to <to_token> --amount <ui_amount> --cha
 - `proofboard`: auto-generates `proof/reports/scoreboard.md` + JSON summary from all run artifacts.
 - `phaseb`: one-command pipeline (`intel -> execute -> audit -> proofboard`) with live-confirm requirement.
 
+## What Phase C Adds
+
+- `scout`: auto-builds a ranked token shortlist from live signal, leaderboard, and tracker feeds.
+- `phasec`: auto-picks the best candidate and prepares a dry-run by default.
+- `phasec` only executes a live swap when `--confirm-live yes` is explicitly passed.
+
 ## Safety Guardrails
 
 - Hard cap for live test notional: `MAX_TEST_USD=0.30` (default).
@@ -31,6 +41,7 @@ npm run phaseb -- --from <from_token> --to <to_token> --amount <ui_amount> --cha
 - Critical `tx-scan` risk blocks execution.
 - `phaseb` command is blocked unless `--confirm-live yes` is passed.
 - `phaseb` also blocks on `intel` verdict `avoid` unless explicitly overridden with `--force-intel yes`.
+- `phasec` defaults to dry-run mode and does not spend funds unless `--confirm-live yes` is passed.
 - Reports are saved to `proof/reports/`.
 
 ## Env Setup

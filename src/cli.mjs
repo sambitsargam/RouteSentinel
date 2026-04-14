@@ -20,14 +20,18 @@ Commands:
   execute    --from <addr> --to <addr> --amount <ui_amount> --chain <chain> --wallet <addr> [--skip-tx-scan yes]
   audit      [--file <report_file>]   # defaults to latest execute report
   intel      --to <addr> --chain <chain>
+  scout      --chain <chain> [--max-candidates <n>] [--min-signal-amount-usd <usd>] [--time-frame <1..5>] [--sort-by <1..5>] [--include <0xaddr,...>]
   proofboard # aggregate execute/audit reports into a scoreboard
   phaseb     --from <addr> --to <addr> --amount <ui_amount> --chain <chain> --wallet <addr> --confirm-live yes [--force-intel yes]
+  phasec     --from <addr> --amount <ui_amount> --chain <chain> --wallet <addr> [--max-candidates <n>] [--to <addr>] [--confirm-live yes]
 
 Examples:
   npm run simulate -- --from 0xeeee... --to 0x74b7... --amount 0.0025 --chain xlayer
   npm run execute -- --from 0xeeee... --to 0x74b7... --amount 0.0025 --chain xlayer --wallet 0xabc...
   npm run intel -- --to 0x74b7... --chain xlayer
+  npm run scout -- --chain xlayer --max-candidates 10
   npm run phaseb -- --from 0xeeee... --to 0x74b7... --amount 0.0025 --chain xlayer --wallet 0xabc... --confirm-live yes
+  npm run phasec -- --from 0xeeee... --amount 0.0025 --chain xlayer --wallet 0xabc...
 `;
 
 function parseArgs(argv) {
@@ -84,6 +88,19 @@ function average(values) {
   if (!values.length) return null;
   const total = values.reduce((sum, value) => sum + value, 0);
   return total / values.length;
+}
+
+function parseCsv(value) {
+  return String(value || "")
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function normalizeTokenAddress(value) {
+  const raw = String(value || "").trim().toLowerCase();
+  if (!raw.startsWith("0x") || raw.length !== 42) return null;
+  return raw;
 }
 
 function runJson(args) {
@@ -580,6 +597,27 @@ function summarizeTrackerMentions(trades, tokenAddress) {
   };
 }
 
+function summarizeTokenSignals(rows, tokenAddress) {
+  const target = String(tokenAddress || "").toLowerCase();
+  const matches = rows.filter(
+    (row) => String(row.token?.tokenAddress || "").toLowerCase() === target
+  );
+
+  const amounts = matches
+    .map((row) => toNumber(row.amountUsd))
+    .filter((value) => value !== null);
+  const triggerWallets = matches
+    .map((row) => toNumber(row.triggerWalletCount))
+    .filter((value) => value !== null);
+
+  return {
+    count: matches.length,
+    avgAmountUsd: average(amounts),
+    maxAmountUsd: amounts.length ? Math.max(...amounts) : null,
+    avgTriggerWalletCount: average(triggerWallets)
+  };
+}
+
 function buildIntelScore({ tokenScan, tokenPrice, tokenAdvanced, signalSummary, leaderboardSummary, trackerSummary }) {
   let score = 50;
   const reasons = [];
@@ -808,6 +846,284 @@ function intel(opts) {
   };
 
   const file = writeReport("intel", report);
+  return { report, file };
+}
+
+function buildScoutUniverse({ signalRows, leaderboardRows, trackerTrades, includeTokens }) {
+  const universe = new Map();
+
+  function touchCandidate(address, source, symbol) {
+    const tokenAddress = normalizeTokenAddress(address);
+    if (!tokenAddress || isNativeAddress(tokenAddress)) return null;
+
+    if (!universe.has(tokenAddress)) {
+      universe.set(tokenAddress, {
+        tokenAddress,
+        symbol: symbol || null,
+        sources: new Set(),
+        signalCount: 0,
+        leaderboardMentions: 0,
+        trackerMentions: 0,
+        manualPinned: false
+      });
+    }
+
+    const entry = universe.get(tokenAddress);
+    entry.sources.add(source);
+    if (!entry.symbol && symbol) entry.symbol = symbol;
+    return entry;
+  }
+
+  for (const row of signalRows) {
+    const entry = touchCandidate(row.token?.tokenAddress, "signal", row.token?.symbol || null);
+    if (!entry) continue;
+    entry.signalCount += 1;
+  }
+
+  for (const row of leaderboardRows) {
+    for (const token of toArray(row.topPnlTokenList)) {
+      const entry = touchCandidate(token.tokenContractAddress, "leaderboard", token.tokenSymbol || null);
+      if (!entry) continue;
+      entry.leaderboardMentions += 1;
+    }
+  }
+
+  for (const trade of trackerTrades) {
+    const entry = touchCandidate(trade.tokenContractAddress, "tracker", trade.tokenSymbol || null);
+    if (!entry) continue;
+    entry.trackerMentions += 1;
+  }
+
+  for (const tokenAddress of includeTokens) {
+    const entry = touchCandidate(tokenAddress, "manual", null);
+    if (!entry) continue;
+    entry.manualPinned = true;
+  }
+
+  const candidates = Array.from(universe.values()).map((item) => {
+    const activityRawScore =
+      item.signalCount * 3 + item.leaderboardMentions * 4 + item.trackerMentions * 2;
+    return {
+      ...item,
+      sources: Array.from(item.sources).sort(),
+      activityRawScore
+    };
+  });
+
+  candidates.sort((a, b) => {
+    if (a.manualPinned !== b.manualPinned) return a.manualPinned ? -1 : 1;
+    if (b.activityRawScore !== a.activityRawScore) return b.activityRawScore - a.activityRawScore;
+    if (b.signalCount !== a.signalCount) return b.signalCount - a.signalCount;
+    if (b.leaderboardMentions !== a.leaderboardMentions) return b.leaderboardMentions - a.leaderboardMentions;
+    if (b.trackerMentions !== a.trackerMentions) return b.trackerMentions - a.trackerMentions;
+    return a.tokenAddress.localeCompare(b.tokenAddress);
+  });
+
+  return candidates;
+}
+
+function scout(opts) {
+  requireFields(opts, ["chain"]);
+
+  const maxCandidates = clamp(Math.trunc(toNumber(opts["max-candidates"]) || 12), 1, 40);
+  const timeFrame = String(opts["time-frame"] || "3");
+  const sortBy = String(opts["sort-by"] || "5");
+  const includeTokens = parseCsv(opts.include)
+    .map((value) => normalizeTokenAddress(value))
+    .filter(Boolean);
+
+  const signalArgs = ["signal", "list", "--chain", opts.chain];
+  if (opts["min-signal-amount-usd"]) {
+    signalArgs.push("--min-amount-usd", String(opts["min-signal-amount-usd"]));
+  }
+
+  const signalCall = safeDataCall("signal", () => toArray(runJson(signalArgs)));
+  const leaderboardCall = safeDataCall("leaderboard", () =>
+    toArray(
+      runJson([
+        "leaderboard",
+        "list",
+        "--chain",
+        opts.chain,
+        "--time-frame",
+        timeFrame,
+        "--sort-by",
+        sortBy
+      ])
+    )
+  );
+  const trackerCall = safeDataCall("tracker", () => {
+    const data = runJson([
+      "tracker",
+      "activities",
+      "--tracker-type",
+      "smart_money",
+      "--chain",
+      opts.chain
+    ]);
+    return toArray(data?.trades);
+  });
+
+  const signalRows = signalCall.ok ? signalCall.data : [];
+  const leaderboardRows = leaderboardCall.ok ? leaderboardCall.data : [];
+  const trackerTrades = trackerCall.ok ? trackerCall.data : [];
+
+  const universe = buildScoutUniverse({
+    signalRows,
+    leaderboardRows,
+    trackerTrades,
+    includeTokens
+  });
+
+  const selectedCandidates = universe.slice(0, maxCandidates);
+  const ranking = [];
+
+  for (const candidate of selectedCandidates) {
+    const tokenScanCall = safeDataCall("tokenScan", () =>
+      fetchTokenScan(opts.chain, candidate.tokenAddress)
+    );
+    const priceInfoCall = safeDataCall("priceInfo", () => {
+      const data = runJson([
+        "token",
+        "price-info",
+        "--chain",
+        opts.chain,
+        "--address",
+        candidate.tokenAddress
+      ]);
+      return firstItem(data);
+    });
+    const advancedInfoCall = safeDataCall("advancedInfo", () =>
+      runJson([
+        "token",
+        "advanced-info",
+        "--chain",
+        opts.chain,
+        "--address",
+        candidate.tokenAddress
+      ])
+    );
+
+    const signalSummary = summarizeTokenSignals(signalRows, candidate.tokenAddress);
+    const leaderboardSummary = summarizeLeaderboardMentions(leaderboardRows, candidate.tokenAddress);
+    const trackerSummary = summarizeTrackerMentions(trackerTrades, candidate.tokenAddress);
+
+    const score = buildIntelScore({
+      tokenScan: tokenScanCall.data,
+      tokenPrice: priceInfoCall.data,
+      tokenAdvanced: advancedInfoCall.data,
+      signalSummary,
+      leaderboardSummary,
+      trackerSummary
+    });
+
+    ranking.push({
+      tokenAddress: candidate.tokenAddress,
+      symbol: candidate.symbol,
+      sources: candidate.sources,
+      activity: {
+        rawScore: candidate.activityRawScore,
+        signalCount: candidate.signalCount,
+        leaderboardMentions: candidate.leaderboardMentions,
+        trackerMentions: candidate.trackerMentions,
+        manualPinned: candidate.manualPinned
+      },
+      market: {
+        price: toNumber(priceInfoCall.data?.price),
+        liquidity: toNumber(priceInfoCall.data?.liquidity),
+        marketCap: toNumber(priceInfoCall.data?.marketCap),
+        holders: toNumber(priceInfoCall.data?.holders),
+        priceChange24H: toNumber(priceInfoCall.data?.priceChange24H)
+      },
+      risk: {
+        riskControlLevel: toNumber(advancedInfoCall.data?.riskControlLevel),
+        top10HoldPercent: toNumber(advancedInfoCall.data?.top10HoldPercent),
+        criticalTokenRisk: hasCriticalTokenRisk(tokenScanCall.data),
+        tokenScan: tokenScanCall.data
+          ? {
+              isHoneypot: Boolean(tokenScanCall.data.isHoneypot),
+              isRiskToken: Boolean(tokenScanCall.data.isRiskToken),
+              isRubbishAirdrop: Boolean(tokenScanCall.data.isRubbishAirdrop),
+              isLowLiquidity: Boolean(tokenScanCall.data.isLowLiquidity),
+              isMintable: Boolean(tokenScanCall.data.isMintable)
+            }
+          : null
+      },
+      signalSummary,
+      leaderboardSummary: {
+        mentions: leaderboardSummary.mentions,
+        avgTokenPnlUsd: leaderboardSummary.avgTokenPnlUsd,
+        avgWalletWinRatePercent: leaderboardSummary.avgWalletWinRatePercent,
+        topWallets: leaderboardSummary.topMentions.slice(0, 3).map((item) => item.walletAddress)
+      },
+      trackerSummary: {
+        mentions: trackerSummary.mentions,
+        buyCount: trackerSummary.buyCount,
+        sellCount: trackerSummary.sellCount,
+        buySellBias: trackerSummary.buySellBias,
+        netRealizedPnlUsd: trackerSummary.netRealizedPnlUsd
+      },
+      recommendation: {
+        allowLiveTest: score.allowLiveTest,
+        verdict: score.verdict,
+        score: score.score,
+        criticalTokenRisk: score.criticalTokenRisk,
+        reasons: score.reasons
+      },
+      upstream: {
+        tokenScanOk: tokenScanCall.ok,
+        priceInfoOk: priceInfoCall.ok,
+        advancedInfoOk: advancedInfoCall.ok
+      }
+    });
+  }
+
+  ranking.sort((a, b) => {
+    if (a.recommendation.allowLiveTest !== b.recommendation.allowLiveTest) {
+      return a.recommendation.allowLiveTest ? -1 : 1;
+    }
+    if (b.recommendation.score !== a.recommendation.score) {
+      return b.recommendation.score - a.recommendation.score;
+    }
+    return b.activity.rawScore - a.activity.rawScore;
+  });
+
+  const nextCandidate =
+    ranking.find(
+      (item) =>
+        item.recommendation.allowLiveTest &&
+        item.recommendation.verdict === "go"
+    ) ||
+    ranking.find((item) => item.recommendation.allowLiveTest) ||
+    ranking[0] ||
+    null;
+
+  const report = {
+    command: "scout",
+    createdAt: new Date().toISOString(),
+    request: {
+      chain: opts.chain,
+      maxCandidates,
+      timeFrame,
+      sortBy,
+      minSignalAmountUsd: opts["min-signal-amount-usd"] || null,
+      includeTokens
+    },
+    upstream: {
+      signal: { ok: signalCall.ok, error: signalCall.error, rows: signalRows.length },
+      leaderboard: {
+        ok: leaderboardCall.ok,
+        error: leaderboardCall.error,
+        rows: leaderboardRows.length
+      },
+      tracker: { ok: trackerCall.ok, error: trackerCall.error, rows: trackerTrades.length }
+    },
+    candidateUniverseSize: universe.length,
+    ranking,
+    nextCandidate
+  };
+
+  const file = writeReport("scout", report);
   return { report, file };
 }
 
@@ -1050,6 +1366,89 @@ function phaseb(opts) {
   return { report, file };
 }
 
+function phasec(opts) {
+  requireFields(opts, ["from", "amount", "chain", "wallet"]);
+
+  const scoutResult = scout({
+    chain: opts.chain,
+    "max-candidates": opts["max-candidates"] || "12",
+    "min-signal-amount-usd": opts["min-signal-amount-usd"] || null,
+    "time-frame": opts["time-frame"] || "3",
+    "sort-by": opts["sort-by"] || "5",
+    include: opts.include || null
+  });
+
+  const manualToken = normalizeTokenAddress(opts.to);
+  const autoToken = scoutResult.report.nextCandidate?.tokenAddress || null;
+  const selectedToken = manualToken || autoToken;
+
+  if (!selectedToken) {
+    throw new Error("Phase C could not find a candidate token. Try increasing --max-candidates.");
+  }
+
+  const selectedFromScout =
+    scoutResult.report.ranking.find((item) => item.tokenAddress === selectedToken) || null;
+
+  if (!isYes(opts["confirm-live"])) {
+    const report = {
+      command: "phasec",
+      createdAt: new Date().toISOString(),
+      mode: "dry_run",
+      request: {
+        from: opts.from,
+        amount: String(opts.amount),
+        chain: opts.chain,
+        wallet: opts.wallet,
+        to: selectedToken,
+        manualTokenOverride: Boolean(manualToken)
+      },
+      scout: {
+        file: scoutResult.file,
+        candidateUniverseSize: scoutResult.report.candidateUniverseSize
+      },
+      selectedCandidate: selectedFromScout,
+      nextAction:
+        "Run again with --confirm-live yes to execute the selected token through Phase B pipeline."
+    };
+    const file = writeReport("phasec", report);
+    return { report, file };
+  }
+
+  const phasebResult = phaseb({
+    ...opts,
+    to: selectedToken,
+    "confirm-live": "yes"
+  });
+
+  const report = {
+    command: "phasec",
+    createdAt: new Date().toISOString(),
+    mode: "live",
+    request: {
+      from: opts.from,
+      amount: String(opts.amount),
+      chain: opts.chain,
+      wallet: opts.wallet,
+      to: selectedToken,
+      manualTokenOverride: Boolean(manualToken)
+    },
+    scout: {
+      file: scoutResult.file,
+      candidateUniverseSize: scoutResult.report.candidateUniverseSize
+    },
+    selectedCandidate: selectedFromScout,
+    phaseb: {
+      file: phasebResult.file,
+      txHash: phasebResult.report.execute?.txHash || null,
+      auditVerdict: phasebResult.report.audit?.verdict || null,
+      notionalUsd: phasebResult.report.execute?.notionalUsd || null
+    }
+  };
+
+  const file = writeReport("phasec", report);
+  return { report, file };
+}
+
 function main() {
   const command = process.argv[2];
   const options = parseArgs(process.argv.slice(3));
@@ -1073,10 +1472,14 @@ function main() {
     result = audit(options);
   } else if (command === "intel") {
     result = intel(options);
+  } else if (command === "scout") {
+    result = scout(options);
   } else if (command === "proofboard") {
     result = proofboard();
   } else if (command === "phaseb") {
     result = phaseb(options);
+  } else if (command === "phasec") {
+    result = phasec(options);
   } else {
     throw new Error(`Unknown command: ${command}`);
   }

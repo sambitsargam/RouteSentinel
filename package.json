@@ -10,8 +10,10 @@
     "execute": "node src/cli.mjs execute",
     "audit": "node src/cli.mjs audit",
     "intel": "node src/cli.mjs intel",
+    "scout": "node src/cli.mjs scout",
     "proofboard": "node src/cli.mjs proofboard",
     "phaseb": "node src/cli.mjs phaseb",
+    "phasec": "node src/cli.mjs phasec",
     "flow": "node src/flow.mjs"
   }
 }

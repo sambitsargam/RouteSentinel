@@ -1,0 +1,88 @@
+{
+  "command": "phasec",
+  "createdAt": "2026-04-14T18:44:22.859Z",
+  "mode": "dry_run",
+  "request": {
+    "from": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "amount": "0.0025",
+    "chain": "xlayer",
+    "wallet": "0xd2f83a7ac9537d5392eaac58f0649c37825c8d74",
+    "to": "0x0cc24c51bf89c00c5affbfcf5e856c25ecbdb48e",
+    "manualTokenOverride": false
+  },
+  "scout": {
+    "file": "/Users/sambit/Documents/New project/RouteSentinel-clone/proof/reports/2026-04-14T18-44-22.858Z-scout.json",
+    "candidateUniverseSize": 35
+  },
+  "selectedCandidate": {
+    "tokenAddress": "0x0cc24c51bf89c00c5affbfcf5e856c25ecbdb48e",
+    "symbol": "XDOG",
+    "sources": [
+      "tracker"
+    ],
+    "activity": {
+      "rawScore": 54,
+      "signalCount": 0,
+      "leaderboardMentions": 0,
+      "trackerMentions": 27,
+      "manualPinned": false
+    },
+    "market": {
+      "price": 0.0041879037459681915,
+      "liquidity": 502613.11764762294,
+      "marketCap": 4178594.8072836176,
+      "holders": 35599,
+      "priceChange24H": 2.95
+    },
+    "risk": {
+      "riskControlLevel": 1,
+      "top10HoldPercent": 9.4449,
+      "criticalTokenRisk": false,
+      "tokenScan": {
+        "isHoneypot": false,
+        "isRiskToken": false,
+        "isRubbishAirdrop": false,
+        "isLowLiquidity": false,
+        "isMintable": false
+      }
+    },
+    "signalSummary": {
+      "count": 0,
+      "avgAmountUsd": null,
+      "maxAmountUsd": null,
+      "avgTriggerWalletCount": null
+    },
+    "leaderboardSummary": {
+      "mentions": 0,
+      "avgTokenPnlUsd": null,
+      "avgWalletWinRatePercent": null,
+      "topWallets": []
+    },
+    "trackerSummary": {
+      "mentions": 27,
+      "buyCount": 0,
+      "sellCount": 27,
+      "buySellBias": "sell",
+      "netRealizedPnlUsd": 720.0775439319207
+    },
+    "recommendation": {
+      "allowLiveTest": true,
+      "verdict": "go",
+      "score": 88,
+      "criticalTokenRisk": false,
+      "reasons": [
+        "Token scan did not flag critical risk.",
+        "Risk control level is low.",
+        "Liquidity is healthy.",
+        "Top-10 holder concentration is low.",
+        "Tracker bias is net sell."
+      ]
+    },
+    "upstream": {
+      "tokenScanOk": true,
+      "priceInfoOk": true,
+      "advancedInfoOk": true
+    }
+  },
+  "nextAction": "Run again with --confirm-live yes to execute the selected token through Phase B pipeline."
+}

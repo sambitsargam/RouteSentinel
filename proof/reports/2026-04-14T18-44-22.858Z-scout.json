@@ -1,0 +1,543 @@
+{
+  "command": "scout",
+  "createdAt": "2026-04-14T18:44:22.857Z",
+  "request": {
+    "chain": "xlayer",
+    "maxCandidates": 6,
+    "timeFrame": "3",
+    "sortBy": "5",
+    "minSignalAmountUsd": null,
+    "includeTokens": []
+  },
+  "upstream": {
+    "signal": {
+      "ok": true,
+      "error": null,
+      "rows": 2
+    },
+    "leaderboard": {
+      "ok": true,
+      "error": null,
+      "rows": 50
+    },
+    "tracker": {
+      "ok": true,
+      "error": null,
+      "rows": 100
+    }
+  },
+  "candidateUniverseSize": 35,
+  "ranking": [
+    {
+      "tokenAddress": "0x0cc24c51bf89c00c5affbfcf5e856c25ecbdb48e",
+      "symbol": "XDOG",
+      "sources": [
+        "tracker"
+      ],
+      "activity": {
+        "rawScore": 54,
+        "signalCount": 0,
+        "leaderboardMentions": 0,
+        "trackerMentions": 27,
+        "manualPinned": false
+      },
+      "market": {
+        "price": 0.0041879037459681915,
+        "liquidity": 502613.11764762294,
+        "marketCap": 4178594.8072836176,
+        "holders": 35599,
+        "priceChange24H": 2.95
+      },
+      "risk": {
+        "riskControlLevel": 1,
+        "top10HoldPercent": 9.4449,
+        "criticalTokenRisk": false,
+        "tokenScan": {
+          "isHoneypot": false,
+          "isRiskToken": false,
+          "isRubbishAirdrop": false,
+          "isLowLiquidity": false,
+          "isMintable": false
+        }
+      },
+      "signalSummary": {
+        "count": 0,
+        "avgAmountUsd": null,
+        "maxAmountUsd": null,
+        "avgTriggerWalletCount": null
+      },
+      "leaderboardSummary": {
+        "mentions": 0,
+        "avgTokenPnlUsd": null,
+        "avgWalletWinRatePercent": null,
+        "topWallets": []
+      },
+      "trackerSummary": {
+        "mentions": 27,
+        "buyCount": 0,
+        "sellCount": 27,
+        "buySellBias": "sell",
+        "netRealizedPnlUsd": 720.0775439319207
+      },
+      "recommendation": {
+        "allowLiveTest": true,
+        "verdict": "go",
+        "score": 88,
+        "criticalTokenRisk": false,
+        "reasons": [
+          "Token scan did not flag critical risk.",
+          "Risk control level is low.",
+          "Liquidity is healthy.",
+          "Top-10 holder concentration is low.",
+          "Tracker bias is net sell."
+        ]
+      },
+      "upstream": {
+        "tokenScanOk": true,
+        "priceInfoOk": true,
+        "advancedInfoOk": true
+      }
+    },
+    {
+      "tokenAddress": "0x256a55efa042a5e230078df730ffba53f5a77777",
+      "symbol": "AI",
+      "sources": [
+        "leaderboard",
+        "tracker"
+      ],
+      "activity": {
+        "rawScore": 36,
+        "signalCount": 0,
+        "leaderboardMentions": 8,
+        "trackerMentions": 2,
+        "manualPinned": false
+      },
+      "market": {
+        "price": 0.00005624730007710052,
+        "liquidity": 16943.069259760192,
+        "marketCap": 55845.50965351994,
+        "holders": 1085,
+        "priceChange24H": -6.95
+      },
+      "risk": {
+        "riskControlLevel": 2,
+        "top10HoldPercent": 38.0875,
+        "criticalTokenRisk": false,
+        "tokenScan": {
+          "isHoneypot": false,
+          "isRiskToken": false,
+          "isRubbishAirdrop": false,
+          "isLowLiquidity": false,
+          "isMintable": false
+        }
+      },
+      "signalSummary": {
+        "count": 0,
+        "avgAmountUsd": null,
+        "maxAmountUsd": null,
+        "avgTriggerWalletCount": null
+      },
+      "leaderboardSummary": {
+        "mentions": 8,
+        "avgTokenPnlUsd": 409.5561602550454,
+        "avgWalletWinRatePercent": 59.0075,
+        "topWallets": [
+          "0x10256051126432cdf917c917c9b3ce1a65da80f9",
+          "0xc28893237887671488365e343f9a89fcbf853f74",
+          "0x8c2474763fc3e9dac8cd025927d20e99c57b73bc"
+        ]
+      },
+      "trackerSummary": {
+        "mentions": 2,
+        "buyCount": 0,
+        "sellCount": 2,
+        "buySellBias": "sell",
+        "netRealizedPnlUsd": 840.9943754661317
+      },
+      "recommendation": {
+        "allowLiveTest": true,
+        "verdict": "caution",
+        "score": 67,
+        "criticalTokenRisk": false,
+        "reasons": [
+          "Token scan did not flag critical risk.",
+          "Risk control level is moderate.",
+          "Liquidity is thin.",
+          "Leaderboard token mentions boost (+15.0).",
+          "Tracker bias is net sell."
+        ]
+      },
+      "upstream": {
+        "tokenScanOk": true,
+        "priceInfoOk": true,
+        "advancedInfoOk": true
+      }
+    },
+    {
+      "tokenAddress": "0x903358faf7c6304afbd560e9e29b12ab1b8fddc5",
+      "symbol": "DOG",
+      "sources": [
+        "tracker"
+      ],
+      "activity": {
+        "rawScore": 40,
+        "signalCount": 0,
+        "leaderboardMentions": 0,
+        "trackerMentions": 20,
+        "manualPinned": false
+      },
+      "market": {
+        "price": 0.000011163875328845268,
+        "liquidity": 79617.14712485747,
+        "marketCap": 519867.0479583021,
+        "holders": 10280,
+        "priceChange24H": 65.82
+      },
+      "risk": {
+        "riskControlLevel": 2,
+        "top10HoldPercent": 11.0106,
+        "criticalTokenRisk": false,
+        "tokenScan": {
+          "isHoneypot": false,
+          "isRiskToken": false,
+          "isRubbishAirdrop": false,
+          "isLowLiquidity": false,
+          "isMintable": false
+        }
+      },
+      "signalSummary": {
+        "count": 0,
+        "avgAmountUsd": null,
+        "maxAmountUsd": null,
+        "avgTriggerWalletCount": null
+      },
+      "leaderboardSummary": {
+        "mentions": 0,
+        "avgTokenPnlUsd": null,
+        "avgWalletWinRatePercent": null,
+        "topWallets": []
+      },
+      "trackerSummary": {
+        "mentions": 20,
+        "buyCount": 2,
+        "sellCount": 18,
+        "buySellBias": "sell",
+        "netRealizedPnlUsd": 54.51409058313719
+      },
+      "recommendation": {
+        "allowLiveTest": false,
+        "verdict": "avoid",
+        "score": 56,
+        "criticalTokenRisk": false,
+        "reasons": [
+          "Token scan did not flag critical risk.",
+          "Risk control level is moderate.",
+          "Top-10 holder concentration is low.",
+          "24h price move is highly volatile.",
+          "Tracker bias is net sell."
+        ]
+      },
+      "upstream": {
+        "tokenScanOk": true,
+        "priceInfoOk": true,
+        "advancedInfoOk": true
+      }
+    },
+    {
+      "tokenAddress": "0x1aa11816c7bd5b9e3ee54f0cd708fde9e13f7777",
+      "symbol": "AGENT",
+      "sources": [
+        "leaderboard"
+      ],
+      "activity": {
+        "rawScore": 32,
+        "signalCount": 0,
+        "leaderboardMentions": 8,
+        "trackerMentions": 0,
+        "manualPinned": false
+      },
+      "market": {
+        "price": 0.00009688157625111929,
+        "liquidity": 21880.613099044658,
+        "marketCap": 96090.5035770799,
+        "holders": 225,
+        "priceChange24H": 3.93
+      },
+      "risk": {
+        "riskControlLevel": 3,
+        "top10HoldPercent": 21.3705,
+        "criticalTokenRisk": false,
+        "tokenScan": {
+          "isHoneypot": false,
+          "isRiskToken": false,
+          "isRubbishAirdrop": false,
+          "isLowLiquidity": false,
+          "isMintable": false
+        }
+      },
+      "signalSummary": {
+        "count": 0,
+        "avgAmountUsd": null,
+        "maxAmountUsd": null,
+        "avgTriggerWalletCount": null
+      },
+      "leaderboardSummary": {
+        "mentions": 8,
+        "avgTokenPnlUsd": 621.4937735296397,
+        "avgWalletWinRatePercent": 60.57,
+        "topWallets": [
+          "0xb634ae51478c286283434cd74a4c7b6ba1ac8baf",
+          "0xe13c7bb17fc176a327ee9f36bd3a3df63e90797d",
+          "0x10256051126432cdf917c917c9b3ce1a65da80f9"
+        ]
+      },
+      "trackerSummary": {
+        "mentions": 0,
+        "buyCount": 0,
+        "sellCount": 0,
+        "buySellBias": "neutral",
+        "netRealizedPnlUsd": 0
+      },
+      "recommendation": {
+        "allowLiveTest": false,
+        "verdict": "avoid",
+        "score": 55,
+        "criticalTokenRisk": false,
+        "reasons": [
+          "Token scan did not flag critical risk.",
+          "Risk control level is elevated.",
+          "Liquidity is thin.",
+          "Top-10 holder concentration is low.",
+          "Leaderboard token mentions boost (+15.0).",
+          "Mentioning wallets show high win rate."
+        ]
+      },
+      "upstream": {
+        "tokenScanOk": true,
+        "priceInfoOk": true,
+        "advancedInfoOk": true
+      }
+    },
+    {
+      "tokenAddress": "0x99938f15f27bd2c0fb6a7912fd42efff7b450052",
+      "symbol": "OK人生",
+      "sources": [
+        "leaderboard"
+      ],
+      "activity": {
+        "rawScore": 32,
+        "signalCount": 0,
+        "leaderboardMentions": 8,
+        "trackerMentions": 0,
+        "manualPinned": false
+      },
+      "market": {
+        "price": 0.000002164174702569,
+        "liquidity": 20308.997324546992,
+        "marketCap": 2164.174702569,
+        "holders": 34,
+        "priceChange24H": -14.43
+      },
+      "risk": {
+        "riskControlLevel": 3,
+        "top10HoldPercent": 15.9789,
+        "criticalTokenRisk": false,
+        "tokenScan": {
+          "isHoneypot": false,
+          "isRiskToken": false,
+          "isRubbishAirdrop": false,
+          "isLowLiquidity": false,
+          "isMintable": false
+        }
+      },
+      "signalSummary": {
+        "count": 0,
+        "avgAmountUsd": null,
+        "maxAmountUsd": null,
+        "avgTriggerWalletCount": null
+      },
+      "leaderboardSummary": {
+        "mentions": 8,
+        "avgTokenPnlUsd": 387.0196252510871,
+        "avgWalletWinRatePercent": 67.03999999999999,
+        "topWallets": [
+          "0x85afff59c649c3edee30481e3ad2e78ccbe68556",
+          "0xffa0c3182710dd2fb68f2f8d96ba7e4c8151922d",
+          "0xd6847f11044d32cc1d6fbaadc5201c6b22c56322"
+        ]
+      },
+      "trackerSummary": {
+        "mentions": 0,
+        "buyCount": 0,
+        "sellCount": 0,
+        "buySellBias": "neutral",
+        "netRealizedPnlUsd": 0
+      },
+      "recommendation": {
+        "allowLiveTest": false,
+        "verdict": "avoid",
+        "score": 43,
+        "criticalTokenRisk": false,
+        "reasons": [
+          "Token scan did not flag critical risk.",
+          "Risk control level is elevated.",
+          "Liquidity is thin.",
+          "Market cap is very small.",
+          "Top-10 holder concentration is low.",
+          "Leaderboard token mentions boost (+15.0).",
+          "Mentioning wallets show high win rate."
+        ]
+      },
+      "upstream": {
+        "tokenScanOk": true,
+        "priceInfoOk": true,
+        "advancedInfoOk": true
+      }
+    },
+    {
+      "tokenAddress": "0x104502f0f79897ec177da6f8ba4630d66c15dab4",
+      "symbol": "图说区块链",
+      "sources": [
+        "leaderboard"
+      ],
+      "activity": {
+        "rawScore": 116,
+        "signalCount": 0,
+        "leaderboardMentions": 29,
+        "trackerMentions": 0,
+        "manualPinned": false
+      },
+      "market": {
+        "price": 0.000008309935552697283,
+        "liquidity": 7173.694236812549,
+        "marketCap": 8309.935552697283,
+        "holders": 113,
+        "priceChange24H": 20.03
+      },
+      "risk": {
+        "riskControlLevel": 3,
+        "top10HoldPercent": 31.0912,
+        "criticalTokenRisk": false,
+        "tokenScan": {
+          "isHoneypot": false,
+          "isRiskToken": false,
+          "isRubbishAirdrop": false,
+          "isLowLiquidity": false,
+          "isMintable": false
+        }
+      },
+      "signalSummary": {
+        "count": 0,
+        "avgAmountUsd": null,
+        "maxAmountUsd": null,
+        "avgTriggerWalletCount": null
+      },
+      "leaderboardSummary": {
+        "mentions": 29,
+        "avgTokenPnlUsd": 488.2018294106688,
+        "avgWalletWinRatePercent": 60.01344827586207,
+        "topWallets": [
+          "0x8e15f734eccba6b5073d7d697666b2b1f0622b67",
+          "0xbdab66dc8a0ca36111f6bdb9c29356c5e51c9a38",
+          "0x4bf691b79074f527d4af0fb7aa2a8937a922bf43"
+        ]
+      },
+      "trackerSummary": {
+        "mentions": 0,
+        "buyCount": 0,
+        "sellCount": 0,
+        "buySellBias": "neutral",
+        "netRealizedPnlUsd": 0
+      },
+      "recommendation": {
+        "allowLiveTest": false,
+        "verdict": "avoid",
+        "score": 39,
+        "criticalTokenRisk": false,
+        "reasons": [
+          "Token scan did not flag critical risk.",
+          "Risk control level is elevated.",
+          "Liquidity is thin.",
+          "Market cap is very small.",
+          "Leaderboard token mentions boost (+15.0).",
+          "Mentioning wallets show high win rate."
+        ]
+      },
+      "upstream": {
+        "tokenScanOk": true,
+        "priceInfoOk": true,
+        "advancedInfoOk": true
+      }
+    }
+  ],
+  "nextCandidate": {
+    "tokenAddress": "0x0cc24c51bf89c00c5affbfcf5e856c25ecbdb48e",
+    "symbol": "XDOG",
+    "sources": [
+      "tracker"
+    ],
+    "activity": {
+      "rawScore": 54,
+      "signalCount": 0,
+      "leaderboardMentions": 0,
+      "trackerMentions": 27,
+      "manualPinned": false
+    },
+    "market": {
+      "price": 0.0041879037459681915,
+      "liquidity": 502613.11764762294,
+      "marketCap": 4178594.8072836176,
+      "holders": 35599,
+      "priceChange24H": 2.95
+    },
+    "risk": {
+      "riskControlLevel": 1,
+      "top10HoldPercent": 9.4449,
+      "criticalTokenRisk": false,
+      "tokenScan": {
+        "isHoneypot": false,
+        "isRiskToken": false,
+        "isRubbishAirdrop": false,
+        "isLowLiquidity": false,
+        "isMintable": false
+      }
+    },
+    "signalSummary": {
+      "count": 0,
+      "avgAmountUsd": null,
+      "maxAmountUsd": null,
+      "avgTriggerWalletCount": null
+    },
+    "leaderboardSummary": {
+      "mentions": 0,
+      "avgTokenPnlUsd": null,
+      "avgWalletWinRatePercent": null,
+      "topWallets": []
+    },
+    "trackerSummary": {
+      "mentions": 27,
+      "buyCount": 0,
+      "sellCount": 27,
+      "buySellBias": "sell",
+      "netRealizedPnlUsd": 720.0775439319207
+    },
+    "recommendation": {
+      "allowLiveTest": true,
+      "verdict": "go",
+      "score": 88,
+      "criticalTokenRisk": false,
+      "reasons": [
+        "Token scan did not flag critical risk.",
+        "Risk control level is low.",
+        "Liquidity is healthy.",
+        "Top-10 holder concentration is low.",
+        "Tracker bias is net sell."
+      ]
+    },
+    "upstream": {
+      "tokenScanOk": true,
+      "priceInfoOk": true,
+      "advancedInfoOk": true
+    }
+  }
+}
