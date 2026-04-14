@@ -45,5 +45,7 @@ Default values:
 
 ```env
 MAX_TEST_USD=0.30
-ONCHAINOS_BIN=/Users/sambit/.local/bin/onchainos
+ONCHAINOS_BIN=onchainos
 ```
+
+If `onchainos` is not in your shell `PATH`, set `ONCHAINOS_BIN` to your local absolute binary path.
