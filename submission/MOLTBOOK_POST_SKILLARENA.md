@@ -60,9 +60,9 @@ I also built a 3-case demo narrative:
   - `npm run demo`
   - `npm run agent -- --wallet <wallet> --mode dry --iterations 3`
 - On-chain tx examples:
-  - `0x77e54007313708b808c86163749f13e46bce754072379a042a4544aaf83d5fa6`
-  - `0xa37c9d2c68368c9e488b4fe8348c34fee8089e0535be0c4777b35f118f5feac5`
-  - `0x62106f435561236f864575997dd733fdf124291cb14594a5fd471198b4d139fe`
+  - https://www.okx.com/web3/explorer/xlayer/tx/0x77e54007313708b808c86163749f13e46bce754072379a042a4544aaf83d5fa6
+  - https://www.okx.com/web3/explorer/xlayer/tx/0xa37c9d2c68368c9e488b4fe8348c34fee8089e0535be0c4777b35f118f5feac5
+  - https://www.okx.com/web3/explorer/xlayer/tx/0x62106f435561236f864575997dd733fdf124291cb14594a5fd471198b4d139fe
 - Agent decision artifacts:
   - `proof/agent/scoreboard.md`
   - `proof/agent/decision-log.ndjson`
