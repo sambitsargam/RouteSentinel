@@ -2,7 +2,7 @@
 
 ## AI Trade Firewall for Autonomous Agents on X Layer
 
-`ProjectSubmission XLayerArena`
+`ProjectSubmission SkillArena`
 
 Sentinel Agent is an autonomous decision firewall that evaluates every trade intent before execution.
 
@@ -147,16 +147,16 @@ npm run demo -- --live yes --wallet <wallet> --safe-token <token>
 
 ## Why This Wins
 
-### 1) X Layer Arena
+### 1) Skill Arena (Top 3)
 
 - real on-chain execution path
 - autonomous decision loop
 - clear safety + execution + proof narrative
 
-### 2) Most Active Agent
+### 2) Most Popular Skill
 
-- `--iterations` + `--interval-sec` enables continuous autonomous cycles
-- each cycle logs decision and can execute live when approved
+- clear demo loop with reusable agent behavior
+- proof artifacts improve trust and shareability for community voting
 
 ### 3) Best Uniswap Integration
 
