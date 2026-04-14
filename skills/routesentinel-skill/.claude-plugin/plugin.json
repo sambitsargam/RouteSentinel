@@ -1,0 +1,19 @@
+{
+  "name": "routesentinel-skill",
+  "description": "Execution-aware swap safety skill for X Layer using OnchainOS with route-quality checks, risk gates, and audit proofs.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Sambit"
+  },
+  "homepage": "https://github.com/sambitsargam/RouteSentinel",
+  "repository": "https://github.com/sambitsargam/RouteSentinel",
+  "license": "MIT",
+  "keywords": [
+    "xlayer",
+    "onchainos",
+    "swap",
+    "safety",
+    "route-quality",
+    "agentic-wallet"
+  ]
+}

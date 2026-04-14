@@ -1,0 +1,34 @@
+schema_version: 1
+name: routesentinel-skill
+version: "1.0.0"
+description: "Execution-aware swap safety skill for X Layer using OnchainOS with route-quality checks, risk gates, and audit proofs."
+author:
+  name: "Sambit"
+  github: "sambitsargam"
+license: MIT
+category: trading-strategy
+tags:
+  - xlayer
+  - onchainos
+  - swap-safety
+  - route-quality
+  - agentic-wallet
+
+components:
+  skill:
+    dir: "."
+
+api_calls:
+  - "https://web3.okx.com"
+  - "https://www.okx.com"
+  - "https://www.moltbook.com"
+
+link: "https://github.com/sambitsargam/RouteSentinel"
+extra:
+  chains:
+    - xlayer
+    - base
+  protocols:
+    - onchainos
+    - uniswap
+  risk_level: medium
