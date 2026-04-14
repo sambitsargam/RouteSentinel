@@ -8,7 +8,7 @@
     "plan": "node src/cli.mjs plan",
     "simulate": "node src/cli.mjs simulate",
     "execute": "node src/cli.mjs execute",
-    "audit": "node src/cli.mjs audit"
+    "audit": "node src/cli.mjs audit",
+    "flow": "node src/flow.mjs"
   }
 }
-

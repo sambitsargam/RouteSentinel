@@ -9,6 +9,7 @@ npm run plan -- --from <from_token> --to <to_token> --amount <ui_amount> --chain
 npm run simulate -- --from <from_token> --to <to_token> --amount <ui_amount> --chain <chain>
 npm run execute -- --from <from_token> --to <to_token> --amount <ui_amount> --chain <chain> --wallet <wallet>
 npm run audit -- [--file <proof/reports/...-execute.json>]
+npm run flow -- --from <from_token> --to <to_token> --amount <ui_amount> --chain <chain> --wallet <wallet> --confirm-live yes
 ```
 
 ## Safety Guardrail
@@ -17,6 +18,7 @@ npm run audit -- [--file <proof/reports/...-execute.json>]
 - Any simulation above cap is blocked before execution.
 - Reports are saved to `proof/reports/`.
 - `audit` produces an execution verdict (`excellent`, `good`, `acceptable`, `needs_review`) based on expected vs actual output ratio.
+- `flow` command is blocked unless `--confirm-live yes` is passed.
 
 ## Env Setup
 
