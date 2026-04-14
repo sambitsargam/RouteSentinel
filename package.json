@@ -9,6 +9,9 @@
     "simulate": "node src/cli.mjs simulate",
     "execute": "node src/cli.mjs execute",
     "audit": "node src/cli.mjs audit",
+    "intel": "node src/cli.mjs intel",
+    "proofboard": "node src/cli.mjs proofboard",
+    "phaseb": "node src/cli.mjs phaseb",
     "flow": "node src/flow.mjs"
   }
 }

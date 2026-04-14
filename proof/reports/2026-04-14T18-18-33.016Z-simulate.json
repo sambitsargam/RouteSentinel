@@ -1,0 +1,144 @@
+{
+  "command": "simulate",
+  "createdAt": "2026-04-14T18:18:33.016Z",
+  "request": {
+    "from": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "to": "0x74b7f16337b8972027f6196a17a631ac6de26d22",
+    "amount": "0.0025",
+    "chain": "xlayer"
+  },
+  "guardrails": {
+    "maxTestUsd": 0.3,
+    "notionalUsd": 0.214925,
+    "passCap": true
+  },
+  "tokenScan": {
+    "buyTaxes": "0",
+    "chainId": "196",
+    "isAirdropScam": false,
+    "isChainSupported": true,
+    "isCounterfeit": false,
+    "isDumping": false,
+    "isFakeLiquidity": false,
+    "isFundLinkage": false,
+    "isHasAssetEditAuth": false,
+    "isHasBlockingHis": false,
+    "isHasFrozenAuth": false,
+    "isHoneypot": false,
+    "isLiquidityRemoval": false,
+    "isLowLiquidity": false,
+    "isMintable": true,
+    "isNotRenounced": false,
+    "isOverIssued": false,
+    "isPump": false,
+    "isRiskToken": false,
+    "isRubbishAirdrop": false,
+    "isVeryHighLpHolderProp": false,
+    "isVeryLowLpBurn": false,
+    "isWash": false,
+    "isWash2": false,
+    "sellTaxes": "0",
+    "tokenAddress": "0x74b7f16337b8972027f6196a17a631ac6de26d22"
+  },
+  "quote": {
+    "chainIndex": "196",
+    "contextSlot": 57421315,
+    "dexRouterList": [
+      {
+        "dexProtocol": {
+          "dexName": "iZUMi",
+          "percent": "100"
+        },
+        "fromToken": {
+          "decimal": "18",
+          "isHoneyPot": false,
+          "taxRate": "0",
+          "tokenContractAddress": "0xe538905cf8410324e03a5a23c1c177a474d59b2b",
+          "tokenSymbol": "WOKB",
+          "tokenUnitPrice": "85.97"
+        },
+        "fromTokenIndex": "0",
+        "toToken": {
+          "decimal": "18",
+          "isHoneyPot": false,
+          "taxRate": "0",
+          "tokenContractAddress": "0x5a77f1443d16ee5761d310e38b62f77f726bc71c",
+          "tokenSymbol": "WETH",
+          "tokenUnitPrice": "2340.43"
+        },
+        "toTokenIndex": "1"
+      },
+      {
+        "dexProtocol": {
+          "dexName": "StationDEX V3",
+          "percent": "100"
+        },
+        "fromToken": {
+          "decimal": "18",
+          "isHoneyPot": false,
+          "taxRate": "0",
+          "tokenContractAddress": "0x5a77f1443d16ee5761d310e38b62f77f726bc71c",
+          "tokenSymbol": "WETH",
+          "tokenUnitPrice": "2340.43"
+        },
+        "fromTokenIndex": "1",
+        "toToken": {
+          "decimal": "6",
+          "isHoneyPot": false,
+          "taxRate": "0",
+          "tokenContractAddress": "0x1e4a5963abfd975d8c9021ce480b42188849d41d",
+          "tokenSymbol": "XLAYER_USDT",
+          "tokenUnitPrice": "1.00048"
+        },
+        "toTokenIndex": "2"
+      },
+      {
+        "dexProtocol": {
+          "dexName": "QuickSwap V3",
+          "percent": "100"
+        },
+        "fromToken": {
+          "decimal": "6",
+          "isHoneyPot": false,
+          "taxRate": "0",
+          "tokenContractAddress": "0x1e4a5963abfd975d8c9021ce480b42188849d41d",
+          "tokenSymbol": "XLAYER_USDT",
+          "tokenUnitPrice": "1.00048"
+        },
+        "fromTokenIndex": "2",
+        "toToken": {
+          "decimal": "6",
+          "isHoneyPot": false,
+          "taxRate": "0",
+          "tokenContractAddress": "0x74b7f16337b8972027f6196a17a631ac6de26d22",
+          "tokenSymbol": "USDC",
+          "tokenUnitPrice": "0.99986"
+        },
+        "toTokenIndex": "3"
+      }
+    ],
+    "estimateGasFee": "1020231",
+    "fromToken": {
+      "decimal": "18",
+      "isHoneyPot": false,
+      "taxRate": "0",
+      "tokenContractAddress": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "tokenSymbol": "OKB",
+      "tokenUnitPrice": "85.97"
+    },
+    "fromTokenAmount": "2500000000000000",
+    "priceImpactPercent": "-0.2",
+    "router": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee--0x5a77f1443d16ee5761d310e38b62f77f726bc71c--0x1e4a5963abfd975d8c9021ce480b42188849d41d--0x74b7f16337b8972027f6196a17a631ac6de26d22",
+    "swapMode": "exactIn",
+    "toToken": {
+      "decimal": "6",
+      "isHoneyPot": false,
+      "taxRate": "0",
+      "tokenContractAddress": "0x74b7f16337b8972027f6196a17a631ac6de26d22",
+      "tokenSymbol": "USDC",
+      "tokenUnitPrice": "0.99986"
+    },
+    "toTokenAmount": "214528",
+    "tradeFee": "0.002779895264310177"
+  }
+}

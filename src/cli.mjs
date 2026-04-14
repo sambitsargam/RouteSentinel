@@ -6,6 +6,7 @@ import { spawnSync } from "node:child_process";
 
 const ONCHAINOS_BIN = process.env.ONCHAINOS_BIN || "onchainos";
 const MAX_TEST_USD = Number(process.env.MAX_TEST_USD || "0.30");
+const ONCHAINOS_MAX_BUFFER = Number(process.env.ONCHAINOS_MAX_BUFFER || 25 * 1024 * 1024);
 const ROOT = process.cwd();
 const REPORT_DIR = path.join(ROOT, "proof", "reports");
 fs.mkdirSync(REPORT_DIR, { recursive: true });
@@ -14,14 +15,19 @@ const USAGE = `
 RouteSentinel CLI
 
 Commands:
-  plan      --from <addr> --to <addr> --amount <ui_amount> --chain <chain> [--wallet <addr>]
-  simulate  --from <addr> --to <addr> --amount <ui_amount> --chain <chain>
-  execute   --from <addr> --to <addr> --amount <ui_amount> --chain <chain> --wallet <addr>
-  audit     [--file <report_file>]   # defaults to latest execute report
+  plan       --from <addr> --to <addr> --amount <ui_amount> --chain <chain> [--wallet <addr>]
+  simulate   --from <addr> --to <addr> --amount <ui_amount> --chain <chain>
+  execute    --from <addr> --to <addr> --amount <ui_amount> --chain <chain> --wallet <addr> [--skip-tx-scan yes]
+  audit      [--file <report_file>]   # defaults to latest execute report
+  intel      --to <addr> --chain <chain>
+  proofboard # aggregate execute/audit reports into a scoreboard
+  phaseb     --from <addr> --to <addr> --amount <ui_amount> --chain <chain> --wallet <addr> --confirm-live yes [--force-intel yes]
 
 Examples:
   npm run simulate -- --from 0xeeee... --to 0x74b7... --amount 0.0025 --chain xlayer
   npm run execute -- --from 0xeeee... --to 0x74b7... --amount 0.0025 --chain xlayer --wallet 0xabc...
+  npm run intel -- --to 0x74b7... --chain xlayer
+  npm run phaseb -- --from 0xeeee... --to 0x74b7... --amount 0.0025 --chain xlayer --wallet 0xabc... --confirm-live yes
 `;
 
 function parseArgs(argv) {
@@ -49,8 +55,42 @@ function requireFields(opts, fields) {
   }
 }
 
+function isYes(value) {
+  return String(value || "").toLowerCase() === "yes";
+}
+
+function clamp(value, min, max) {
+  return Math.max(min, Math.min(max, value));
+}
+
+function toNumber(value) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function toArray(value) {
+  return Array.isArray(value) ? value : [];
+}
+
+function firstItem(value) {
+  return Array.isArray(value) ? value[0] || null : value || null;
+}
+
+function formatUsd(value) {
+  return Number.isFinite(value) ? Number(value).toFixed(6) : "n/a";
+}
+
+function average(values) {
+  if (!values.length) return null;
+  const total = values.reduce((sum, value) => sum + value, 0);
+  return total / values.length;
+}
+
 function runJson(args) {
-  const proc = spawnSync(ONCHAINOS_BIN, args, { encoding: "utf8" });
+  const proc = spawnSync(ONCHAINOS_BIN, args, {
+    encoding: "utf8",
+    maxBuffer: ONCHAINOS_MAX_BUFFER
+  });
   const stdout = proc.stdout || "";
   const stderr = proc.stderr || "";
   const raw = `${stdout}${stderr}`.trim();
@@ -79,6 +119,14 @@ function runJson(args) {
     throw new Error(parsed.error || `Command failed: ${ONCHAINOS_BIN} ${args.join(" ")}`);
   }
   return parsed.data;
+}
+
+function safeDataCall(label, fn) {
+  try {
+    return { label, ok: true, data: fn(), error: null };
+  } catch (error) {
+    return { label, ok: false, data: null, error: error.message };
+  }
 }
 
 function toChainIndex(chain) {
@@ -120,15 +168,20 @@ function writeReport(kind, payload) {
   return file;
 }
 
-function runTokenScan(chain, toToken) {
-  if (isNativeAddress(toToken)) return null;
+function fetchTokenScan(chain, tokenAddress) {
+  if (isNativeAddress(tokenAddress)) return null;
   const chainIndex = toChainIndex(chain);
-  const scan = runJson(["security", "token-scan", "--tokens", `${chainIndex}:${toToken}`]);
-  const item = Array.isArray(scan) ? scan[0] : null;
-  if (!item) return null;
+  const scan = runJson(["security", "token-scan", "--tokens", `${chainIndex}:${tokenAddress}`]);
+  return Array.isArray(scan) ? scan[0] || null : null;
+}
 
-  // Hard-stop only on critical patterns for micro-test mode.
-  if (item.isHoneypot || item.isRiskToken || item.isRubbishAirdrop) {
+function hasCriticalTokenRisk(item) {
+  return Boolean(item && (item.isHoneypot || item.isRiskToken || item.isRubbishAirdrop));
+}
+
+function runTokenScan(chain, tokenAddress) {
+  const item = fetchTokenScan(chain, tokenAddress);
+  if (hasCriticalTokenRisk(item)) {
     throw new Error("Token scan blocked execution: critical token risk detected.");
   }
   return item;
@@ -151,6 +204,153 @@ function getQuote(opts) {
     throw new Error("No quote route returned.");
   }
   return data[0];
+}
+
+function getSwapPreview(opts) {
+  const data = runJson([
+    "swap",
+    "swap",
+    "--from",
+    opts.from,
+    "--to",
+    opts.to,
+    "--readable-amount",
+    String(opts.amount),
+    "--chain",
+    opts.chain,
+    "--wallet",
+    opts.wallet
+  ]);
+  if (!Array.isArray(data) || data.length === 0) {
+    throw new Error("No swap preview route returned.");
+  }
+  return data[0];
+}
+
+function compactSwapPreview(preview) {
+  const tx = preview?.tx || {};
+  const routerResult = preview?.routerResult || {};
+  return {
+    router: routerResult.router || null,
+    fromAmountRaw: routerResult.fromTokenAmount || null,
+    toAmountRaw: routerResult.toTokenAmount || null,
+    priceImpactPercent: routerResult.priceImpactPercent || null,
+    tradeFee: routerResult.tradeFee || null,
+    minReceiveAmount: tx.minReceiveAmount || null,
+    gas: tx.gas || null,
+    gasPrice: tx.gasPrice || null,
+    to: tx.to || null,
+    value: tx.value || null,
+    calldataBytes: tx.data ? Math.floor(String(tx.data).length / 2) : null
+  };
+}
+
+function runTxScan(chain, preview) {
+  const tx = preview?.tx || null;
+  if (!tx?.from || !tx?.to || !tx?.data) {
+    return {
+      skipped: true,
+      reason: "missing_tx_fields",
+      result: null,
+      error: null
+    };
+  }
+
+  const args = [
+    "security",
+    "tx-scan",
+    "--from",
+    tx.from,
+    "--to",
+    tx.to,
+    "--chain",
+    chain,
+    "--data",
+    tx.data
+  ];
+
+  if (tx.value && tx.value !== "0") {
+    args.push("--value", String(tx.value));
+  }
+  if (tx.gas) {
+    args.push("--gas", String(tx.gas));
+  }
+  if (tx.gasPrice) {
+    args.push("--gas-price", String(tx.gasPrice));
+  }
+
+  try {
+    return {
+      skipped: false,
+      reason: null,
+      result: runJson(args),
+      error: null
+    };
+  } catch (error) {
+    return {
+      skipped: false,
+      reason: null,
+      result: null,
+      error: error.message
+    };
+  }
+}
+
+function assessTxScan(txScan) {
+  if (!txScan) {
+    return {
+      blocked: false,
+      reason: "missing_scan",
+      riskCount: 0,
+      warningCount: 0,
+      warnings: [],
+      revertReason: null
+    };
+  }
+
+  if (txScan.skipped) {
+    return {
+      blocked: false,
+      reason: txScan.reason || "scan_skipped",
+      riskCount: 0,
+      warningCount: 0,
+      warnings: [],
+      revertReason: null
+    };
+  }
+
+  if (txScan.error) {
+    return {
+      blocked: false,
+      reason: "scan_error",
+      riskCount: 0,
+      warningCount: 1,
+      warnings: [txScan.error],
+      revertReason: null
+    };
+  }
+
+  const scanResult = txScan.result || {};
+  const riskItems = toArray(scanResult.riskItemDetail);
+  const rawWarnings = scanResult.warnings;
+  const warnings = Array.isArray(rawWarnings)
+    ? rawWarnings
+    : rawWarnings
+      ? [String(rawWarnings)]
+      : [];
+  const revertReason = scanResult.simulator?.revertReason || null;
+
+  const criticalPattern = /critical|high|danger|malicious|scam|phish|drain|rug|blacklist|stolen|honey/i;
+  const hasCriticalRisk = riskItems.some((item) => criticalPattern.test(JSON.stringify(item)));
+
+  return {
+    blocked: hasCriticalRisk,
+    reason: hasCriticalRisk ? "critical_risk_item_detected" : "ok",
+    riskCount: riskItems.length,
+    warningCount: warnings.length,
+    warnings,
+    revertReason
+  };
 }
 
 function buildPlan(opts) {
@@ -199,7 +399,9 @@ function simulate(opts) {
 
   const file = writeReport("simulate", report);
   if (!passCap) {
-    throw new Error(`Simulation blocked: notional $${notionalUsd.toFixed(6)} exceeds cap $${MAX_TEST_USD.toFixed(2)}.`);
+    throw new Error(
+      `Simulation blocked: notional $${notionalUsd.toFixed(6)} exceeds cap $${MAX_TEST_USD.toFixed(2)}.`
+    );
   }
   return { report, file };
 }
@@ -208,6 +410,28 @@ function execute(opts) {
   requireFields(opts, ["from", "to", "amount", "chain", "wallet"]);
 
   const sim = simulate(opts);
+  const skipTxScan = isYes(opts["skip-tx-scan"]);
+
+  let previewSummary = null;
+  let txScan = {
+    skipped: true,
+    reason: "skip_tx_scan_requested",
+    result: null,
+    error: null
+  };
+  let txScanGuard = assessTxScan(txScan);
+
+  if (!skipTxScan) {
+    const swapPreview = getSwapPreview(opts);
+    previewSummary = compactSwapPreview(swapPreview);
+    txScan = runTxScan(opts.chain, swapPreview);
+    txScanGuard = assessTxScan(txScan);
+
+    if (txScanGuard.blocked) {
+      throw new Error("Execution blocked: tx-scan reported critical risk.");
+    }
+  }
+
   const execData = runJson([
     "swap",
     "execute",
@@ -237,9 +461,478 @@ function execute(opts) {
     simulationReportFile: sim.file,
     quoteSnapshot: sim.report.quote,
     tokenScanSnapshot: sim.report.tokenScan,
+    txPreview: previewSummary,
+    txScan,
+    txScanGuard,
     execution: execData
   };
   const file = writeReport("execute", report);
+  return { report, file };
+}
+
+function summarizeSignalRows(rows) {
+  const sample = rows.slice(0, 10).map((row) => ({
+    timestamp: row.timestamp || null,
+    walletType: row.walletType || null,
+    amountUsd: toNumber(row.amountUsd),
+    triggerWalletCount: toNumber(row.triggerWalletCount),
+    soldRatioPercent: toNumber(row.soldRatioPercent),
+    token: {
+      tokenAddress: row.token?.tokenAddress || null,
+      symbol: row.token?.symbol || null,
+      marketCapUsd: toNumber(row.token?.marketCapUsd),
+      top10HolderPercent: toNumber(row.token?.top10HolderPercent)
+    }
+  }));
+
+  return {
+    count: rows.length,
+    sample
+  };
+}
+
+function summarizeLeaderboardMentions(rows, tokenAddress) {
+  const target = String(tokenAddress || "").toLowerCase();
+  const mentions = [];
+
+  for (const row of rows) {
+    const topTokens = toArray(row.topPnlTokenList);
+    for (const token of topTokens) {
+      if (String(token.tokenContractAddress || "").toLowerCase() !== target) continue;
+      mentions.push({
+        walletAddress: row.walletAddress || null,
+        tokenSymbol: token.tokenSymbol || null,
+        tokenPnlUsd: toNumber(token.tokenPnLUsd),
+        tokenPnlPercent: toNumber(token.tokenPnLPercent),
+        walletRealizedPnlUsd: toNumber(row.realizedPnlUsd),
+        walletWinRatePercent: toNumber(row.winRatePercent),
+        walletTxs: toNumber(row.txs),
+        lastActiveTimestamp: row.lastActiveTimestamp || null
+      });
+      break;
+    }
+  }
+
+  const pnlValues = mentions
+    .map((item) => item.tokenPnlUsd)
+    .filter((value) => value !== null);
+  const winRateValues = mentions
+    .map((item) => item.walletWinRatePercent)
+    .filter((value) => value !== null);
+
+  mentions.sort((a, b) => (b.tokenPnlUsd || 0) - (a.tokenPnlUsd || 0));
+
+  return {
+    scannedRows: rows.length,
+    mentions: mentions.length,
+    avgTokenPnlUsd: average(pnlValues),
+    avgWalletWinRatePercent: average(winRateValues),
+    topMentions: mentions.slice(0, 10)
+  };
+}
+
+function summarizeTrackerMentions(trades, tokenAddress) {
+  const target = String(tokenAddress || "").toLowerCase();
+  const mentions = trades.filter(
+    (trade) => String(trade.tokenContractAddress || "").toLowerCase() === target
+  );
+
+  let buys = 0;
+  let sells = 0;
+  let netRealizedPnlUsd = 0;
+  let totalQuoteTokenAmount = 0;
+
+  for (const trade of mentions) {
+    const tradeType = String(trade.tradeType || "");
+    if (tradeType === "1") buys += 1;
+    else if (tradeType === "2") sells += 1;
+
+    const realized = toNumber(trade.realizedPnlUsd);
+    if (realized !== null) netRealizedPnlUsd += realized;
+
+    const quoteAmount = toNumber(trade.quoteTokenAmount);
+    if (quoteAmount !== null) totalQuoteTokenAmount += quoteAmount;
+  }
+
+  const recent = mentions.slice(0, 10).map((trade) => ({
+    tradeTime: trade.tradeTime || null,
+    tradeType: trade.tradeType || null,
+    walletAddress: trade.walletAddress || null,
+    quoteTokenAmount: toNumber(trade.quoteTokenAmount),
+    quoteTokenSymbol: trade.quoteTokenSymbol || null,
+    realizedPnlUsd: toNumber(trade.realizedPnlUsd),
+    txHash: trade.txHash || null
+  }));
+
+  let bias = "neutral";
+  if (buys > sells) bias = "buy";
+  else if (sells > buys) bias = "sell";
+
+  return {
+    scannedTrades: trades.length,
+    mentions: mentions.length,
+    buyCount: buys,
+    sellCount: sells,
+    buySellBias: bias,
+    netRealizedPnlUsd,
+    totalQuoteTokenAmount,
+    recent
+  };
+}
+
+function buildIntelScore({ tokenScan, tokenPrice, tokenAdvanced, signalSummary, leaderboardSummary, trackerSummary }) {
+  let score = 50;
+  const reasons = [];
+  const criticalTokenRisk = hasCriticalTokenRisk(tokenScan);
+
+  if (criticalTokenRisk) {
+    score -= 70;
+    reasons.push("Critical token risk was detected by token scan.");
+  } else if (tokenScan) {
+    score += 5;
+    reasons.push("Token scan did not flag critical risk.");
+  }
+
+  const riskControlLevel = toNumber(tokenAdvanced?.riskControlLevel);
+  if (riskControlLevel !== null) {
+    if (riskControlLevel <= 1) {
+      score += 10;
+      reasons.push("Risk control level is low.");
+    } else if (riskControlLevel === 2) {
+      score += 4;
+      reasons.push("Risk control level is moderate.");
+    } else {
+      score -= 18;
+      reasons.push("Risk control level is elevated.");
+    }
+  }
+
+  const liquidity = toNumber(tokenPrice?.liquidity);
+  if (liquidity !== null) {
+    if (liquidity >= 1_000_000) {
+      score += 12;
+      reasons.push("Liquidity is strong.");
+    } else if (liquidity >= 250_000) {
+      score += 8;
+      reasons.push("Liquidity is healthy.");
+    } else if (liquidity >= 100_000) {
+      score += 4;
+    } else if (liquidity < 25_000) {
+      score -= 12;
+      reasons.push("Liquidity is thin.");
+    }
+  }
+
+  const marketCap = toNumber(tokenPrice?.marketCap);
+  if (marketCap !== null) {
+    if (marketCap >= 1_000_000) score += 6;
+    else if (marketCap < 50_000) {
+      score -= 8;
+      reasons.push("Market cap is very small.");
+    }
+  }
+
+  const top10HolderPercent = toNumber(tokenAdvanced?.top10HoldPercent);
+  if (top10HolderPercent !== null) {
+    if (top10HolderPercent <= 25) {
+      score += 6;
+      reasons.push("Top-10 holder concentration is low.");
+    } else if (top10HolderPercent <= 40) {
+      score += 2;
+    } else if (top10HolderPercent > 60) {
+      score -= 10;
+      reasons.push("Top-10 holder concentration is high.");
+    }
+  }
+
+  const priceChange24H = toNumber(tokenPrice?.priceChange24H);
+  if (priceChange24H !== null) {
+    const absMove = Math.abs(priceChange24H);
+    if (absMove <= 10) score += 4;
+    else if (absMove > 40) {
+      score -= 8;
+      reasons.push("24h price move is highly volatile.");
+    } else if (absMove > 25) {
+      score -= 4;
+    }
+  }
+
+  if (signalSummary.count > 0) {
+    const signalBoost = Math.min(12, signalSummary.count * 1.5);
+    score += signalBoost;
+    reasons.push(`Smart-money signal count boost (+${signalBoost.toFixed(1)}).`);
+  }
+
+  if (leaderboardSummary.mentions > 0) {
+    const leaderboardBoost = Math.min(15, leaderboardSummary.mentions * 2);
+    score += leaderboardBoost;
+    reasons.push(`Leaderboard token mentions boost (+${leaderboardBoost.toFixed(1)}).`);
+
+    const avgWinRate = leaderboardSummary.avgWalletWinRatePercent;
+    if (avgWinRate !== null && avgWinRate >= 60) {
+      score += 5;
+      reasons.push("Mentioning wallets show high win rate.");
+    } else if (avgWinRate !== null && avgWinRate < 40) {
+      score -= 4;
+      reasons.push("Mentioning wallets show weak win rate.");
+    }
+  }
+
+  if (trackerSummary.mentions > 0) {
+    if (trackerSummary.buyCount > trackerSummary.sellCount) {
+      score += 6;
+      reasons.push("Tracker bias is net buy.");
+    } else if (trackerSummary.sellCount > trackerSummary.buyCount) {
+      score -= 5;
+      reasons.push("Tracker bias is net sell.");
+    }
+
+    if (trackerSummary.netRealizedPnlUsd > 0) score += 4;
+    else if (trackerSummary.netRealizedPnlUsd < 0) score -= 4;
+  }
+
+  score = clamp(Math.round(score * 100) / 100, 0, 100);
+
+  let verdict = "avoid";
+  if (score >= 75) verdict = "go";
+  else if (score >= 60) verdict = "caution";
+
+  return {
+    score,
+    verdict,
+    criticalTokenRisk,
+    reasons,
+    allowLiveTest: verdict !== "avoid" && !criticalTokenRisk
+  };
+}
+
+function intel(opts) {
+  requireFields(opts, ["to", "chain"]);
+
+  if (isNativeAddress(opts.to)) {
+    const report = {
+      command: "intel",
+      createdAt: new Date().toISOString(),
+      request: {
+        to: opts.to,
+        chain: opts.chain
+      },
+      skipped: true,
+      reason: "Destination token is native gas token; token intelligence scan skipped.",
+      recommendation: {
+        allowLiveTest: true,
+        verdict: "go",
+        score: 70,
+        reasons: ["Native token destination has no ERC-20 token contract risk surface."]
+      }
+    };
+    const file = writeReport("intel", report);
+    return { report, file };
+  }
+
+  const tokenScanCall = safeDataCall("tokenScan", () => fetchTokenScan(opts.chain, opts.to));
+  const priceInfoCall = safeDataCall("priceInfo", () => {
+    const data = runJson(["token", "price-info", "--chain", opts.chain, "--address", opts.to]);
+    return firstItem(data);
+  });
+  const advancedInfoCall = safeDataCall("advancedInfo", () =>
+    runJson(["token", "advanced-info", "--chain", opts.chain, "--address", opts.to])
+  );
+  const signalCall = safeDataCall("signal", () =>
+    toArray(runJson(["signal", "list", "--chain", opts.chain, "--token-address", opts.to]))
+  );
+  const leaderboardCall = safeDataCall("leaderboard", () =>
+    toArray(
+      runJson([
+        "leaderboard",
+        "list",
+        "--chain",
+        opts.chain,
+        "--time-frame",
+        "3",
+        "--sort-by",
+        "5"
+      ])
+    )
+  );
+  const trackerCall = safeDataCall("tracker", () => {
+    const data = runJson(["tracker", "activities", "--tracker-type", "smart_money", "--chain", opts.chain]);
+    return toArray(data?.trades);
+  });
+
+  const signalRows = signalCall.ok ? signalCall.data : [];
+  const leaderboardRows = leaderboardCall.ok ? leaderboardCall.data : [];
+  const trackerTrades = trackerCall.ok ? trackerCall.data : [];
+
+  const signalSummary = summarizeSignalRows(signalRows);
+  const leaderboardSummary = summarizeLeaderboardMentions(leaderboardRows, opts.to);
+  const trackerSummary = summarizeTrackerMentions(trackerTrades, opts.to);
+
+  const score = buildIntelScore({
+    tokenScan: tokenScanCall.data,
+    tokenPrice: priceInfoCall.data,
+    tokenAdvanced: advancedInfoCall.data,
+    signalSummary,
+    leaderboardSummary,
+    trackerSummary
+  });
+
+  const report = {
+    command: "intel",
+    createdAt: new Date().toISOString(),
+    request: {
+      to: opts.to,
+      chain: opts.chain
+    },
+    upstream: {
+      tokenScan: { ok: tokenScanCall.ok, error: tokenScanCall.error },
+      priceInfo: { ok: priceInfoCall.ok, error: priceInfoCall.error },
+      advancedInfo: { ok: advancedInfoCall.ok, error: advancedInfoCall.error },
+      signal: { ok: signalCall.ok, error: signalCall.error },
+      leaderboard: { ok: leaderboardCall.ok, error: leaderboardCall.error },
+      tracker: { ok: trackerCall.ok, error: trackerCall.error }
+    },
+    tokenScan: tokenScanCall.data,
+    tokenPriceInfo: priceInfoCall.data,
+    tokenAdvancedInfo: advancedInfoCall.data,
+    signalSummary,
+    leaderboardSummary,
+    trackerSummary,
+    recommendation: {
+      allowLiveTest: score.allowLiveTest,
+      verdict: score.verdict,
+      score: score.score,
+      criticalTokenRisk: score.criticalTokenRisk,
+      reasons: score.reasons
+    }
+  };
+
+  const file = writeReport("intel", report);
+  return { report, file };
+}
+
+function listReportFiles(suffix) {
+  if (!fs.existsSync(REPORT_DIR)) return [];
+  return fs
+    .readdirSync(REPORT_DIR)
+    .filter((name) => name.endsWith(suffix))
+    .sort()
+    .map((name) => path.join(REPORT_DIR, name));
+}
+
+function readJsonSafe(file) {
+  try {
+    return JSON.parse(fs.readFileSync(file, "utf8"));
+  } catch {
+    return null;
+  }
+}
+
+function proofboard() {
+  const executeFiles = listReportFiles("-execute.json");
+  const auditFiles = listReportFiles("-audit.json");
+
+  const executes = executeFiles
+    .map((file) => ({ file, data: readJsonSafe(file) }))
+    .filter((item) => item.data);
+  const audits = auditFiles
+    .map((file) => ({ file, data: readJsonSafe(file) }))
+    .filter((item) => item.data);
+
+  const verdictBreakdown = {};
+  const executionRatios = [];
+  const notionals = [];
+
+  for (const auditItem of audits) {
+    const verdict = auditItem.data.verdict || "unknown";
+    verdictBreakdown[verdict] = (verdictBreakdown[verdict] || 0) + 1;
+
+    const ratio = toNumber(auditItem.data.executionRatio);
+    if (ratio !== null) executionRatios.push(ratio);
+  }
+
+  for (const executeItem of executes) {
+    const notional = toNumber(executeItem.data.guardrails?.notionalUsd);
+    if (notional !== null) notionals.push(notional);
+  }
+
+  const passVerdicts = new Set(["excellent", "good", "acceptable"]);
+  const passedAudits = audits.filter((item) => passVerdicts.has(item.data.verdict)).length;
+
+  const recentExecutions = executes
+    .slice(-10)
+    .reverse()
+    .map((item) => ({
+      createdAt: item.data.createdAt || null,
+      chain: item.data.request?.chain || null,
+      from: item.data.request?.from || null,
+      to: item.data.request?.to || null,
+      notionalUsd: toNumber(item.data.guardrails?.notionalUsd),
+      txHash: item.data.execution?.swapTxHash || null,
+      reportFile: item.file
+    }));
+
+  const scoreboardMarkdownFile = path.join(REPORT_DIR, "scoreboard.md");
+  const markdownLines = [
+    "# RouteSentinel Proofboard",
+    "",
+    `Generated: ${new Date().toISOString()}`,
+    "",
+    "## Summary",
+    `- Execute reports: ${executes.length}`,
+    `- Audit reports: ${audits.length}`,
+    `- Passing audits (excellent/good/acceptable): ${passedAudits}`,
+    `- Pass rate: ${audits.length ? ((passedAudits / audits.length) * 100).toFixed(2) : "0.00"}%`,
+    `- Average execution ratio: ${executionRatios.length ? average(executionRatios).toFixed(6) : "n/a"}`,
+    `- Total notional tested (USD): ${notionals.length ? notionals.reduce((sum, value) => sum + value, 0).toFixed(6) : "0.000000"}`,
+    `- Max single-test notional (USD): ${notionals.length ? Math.max(...notionals).toFixed(6) : "0.000000"}`,
+    "",
+    "## Verdict Breakdown"
+  ];
+
+  const verdictKeys = Object.keys(verdictBreakdown).sort();
+  if (!verdictKeys.length) {
+    markdownLines.push("- none");
+  } else {
+    for (const key of verdictKeys) {
+      markdownLines.push(`- ${key}: ${verdictBreakdown[key]}`);
+    }
+  }
+
+  markdownLines.push("", "## Recent Executions", "| Time (UTC) | Chain | Pair | Notional USD | Tx Hash |", "|---|---|---|---:|---|");
+
+  if (!recentExecutions.length) {
+    markdownLines.push("| - | - | - | - | - |");
+  } else {
+    for (const row of recentExecutions) {
+      const pair = `${row.from || "?"} -> ${row.to || "?"}`;
+      const txHash = row.txHash || "-";
+      markdownLines.push(
+        `| ${row.createdAt || "-"} | ${row.chain || "-"} | ${pair} | ${formatUsd(row.notionalUsd)} | ${txHash} |`
+      );
+    }
+  }
+
+  fs.writeFileSync(scoreboardMarkdownFile, `${markdownLines.join("\n")}\n`, "utf8");
+
+  const report = {
+    command: "proofboard",
+    createdAt: new Date().toISOString(),
+    totals: {
+      executeReports: executes.length,
+      auditReports: audits.length,
+      passedAudits,
+      passRatePercent: audits.length ? (passedAudits / audits.length) * 100 : 0,
+      avgExecutionRatio: average(executionRatios),
+      totalNotionalUsd: notionals.length ? notionals.reduce((sum, value) => sum + value, 0) : 0,
+      maxNotionalUsd: notionals.length ? Math.max(...notionals) : 0
+    },
+    verdictBreakdown,
+    recentExecutions,
+    scoreboardMarkdownFile
+  };
+
+  const file = writeReport("proofboard", report);
   return { report, file };
 }
 
@@ -293,10 +986,68 @@ function audit(opts) {
     expectedToUi,
     actualToUi,
     executionRatio,
-    verdict
+    verdict,
+    txScanBlocked: parsed.txScanGuard?.blocked ?? null,
+    txScanRiskCount: parsed.txScanGuard?.riskCount ?? null,
+    txScanWarnings: parsed.txScanGuard?.warnings ?? null,
+    txScanRevertReason: parsed.txScanGuard?.revertReason ?? null
   };
   const file = writeReport("audit", summary);
   return { report: summary, file };
+}
+
+function phaseb(opts) {
+  requireFields(opts, ["from", "to", "amount", "chain", "wallet"]);
+
+  if (!isYes(opts["confirm-live"])) {
+    throw new Error("Blocked: Phase B live flow requires --confirm-live yes");
+  }
+
+  const intelResult = intel({ to: opts.to, chain: opts.chain });
+  if (!intelResult.report.recommendation.allowLiveTest && !isYes(opts["force-intel"])) {
+    throw new Error(
+      `Blocked by intel verdict (${intelResult.report.recommendation.verdict}). Use --force-intel yes to override.`
+    );
+  }
+
+  const execResult = execute(opts);
+  const auditResult = audit({ file: execResult.file });
+  const boardResult = proofboard();
+
+  const report = {
+    command: "phaseb",
+    createdAt: new Date().toISOString(),
+    request: {
+      from: opts.from,
+      to: opts.to,
+      amount: String(opts.amount),
+      chain: opts.chain,
+      wallet: opts.wallet
+    },
+    intel: {
+      file: intelResult.file,
+      verdict: intelResult.report.recommendation.verdict,
+      score: intelResult.report.recommendation.score,
+      allowLiveTest: intelResult.report.recommendation.allowLiveTest
+    },
+    execute: {
+      file: execResult.file,
+      txHash: execResult.report.execution?.swapTxHash || null,
+      notionalUsd: execResult.report.guardrails?.notionalUsd || null
+    },
+    audit: {
+      file: auditResult.file,
+      verdict: auditResult.report.verdict,
+      executionRatio: auditResult.report.executionRatio
+    },
+    proofboard: {
+      file: boardResult.file,
+      scoreboardMarkdownFile: boardResult.report.scoreboardMarkdownFile
+    }
+  };
+
+  const file = writeReport("phaseb", report);
+  return { report, file };
 }
 
 function main() {
@@ -320,6 +1071,12 @@ function main() {
     result = execute(options);
   } else if (command === "audit") {
     result = audit(options);
+  } else if (command === "intel") {
+    result = intel(options);
+  } else if (command === "proofboard") {
+    result = proofboard();
+  } else if (command === "phaseb") {
+    result = phaseb(options);
   } else {
     throw new Error(`Unknown command: ${command}`);
   }

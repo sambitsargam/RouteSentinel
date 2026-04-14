@@ -1,0 +1,96 @@
+{
+  "command": "simulate",
+  "createdAt": "2026-04-14T18:07:36.733Z",
+  "request": {
+    "from": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "to": "0x74b7f16337b8972027f6196a17a631ac6de26d22",
+    "amount": "0.0025",
+    "chain": "xlayer"
+  },
+  "guardrails": {
+    "maxTestUsd": 0.3,
+    "notionalUsd": 0.21505,
+    "passCap": true
+  },
+  "tokenScan": {
+    "buyTaxes": "0",
+    "chainId": "196",
+    "isAirdropScam": false,
+    "isChainSupported": true,
+    "isCounterfeit": false,
+    "isDumping": false,
+    "isFakeLiquidity": false,
+    "isFundLinkage": false,
+    "isHasAssetEditAuth": false,
+    "isHasBlockingHis": false,
+    "isHasFrozenAuth": false,
+    "isHoneypot": false,
+    "isLiquidityRemoval": false,
+    "isLowLiquidity": false,
+    "isMintable": true,
+    "isNotRenounced": false,
+    "isOverIssued": false,
+    "isPump": false,
+    "isRiskToken": false,
+    "isRubbishAirdrop": false,
+    "isVeryHighLpHolderProp": false,
+    "isVeryLowLpBurn": false,
+    "isWash": false,
+    "isWash2": false,
+    "sellTaxes": "0",
+    "tokenAddress": "0x74b7f16337b8972027f6196a17a631ac6de26d22"
+  },
+  "quote": {
+    "chainIndex": "196",
+    "contextSlot": 57420252,
+    "dexRouterList": [
+      {
+        "dexProtocol": {
+          "dexName": "PotatoSwap",
+          "percent": "100"
+        },
+        "fromToken": {
+          "decimal": "18",
+          "isHoneyPot": false,
+          "taxRate": "0",
+          "tokenContractAddress": "0xe538905cf8410324e03a5a23c1c177a474d59b2b",
+          "tokenSymbol": "WOKB",
+          "tokenUnitPrice": "86.02"
+        },
+        "fromTokenIndex": "0",
+        "toToken": {
+          "decimal": "6",
+          "isHoneyPot": false,
+          "taxRate": "0",
+          "tokenContractAddress": "0x74b7f16337b8972027f6196a17a631ac6de26d22",
+          "tokenSymbol": "USDC",
+          "tokenUnitPrice": "0.99987"
+        },
+        "toTokenIndex": "1"
+      }
+    ],
+    "estimateGasFee": "288000",
+    "fromToken": {
+      "decimal": "18",
+      "isHoneyPot": false,
+      "taxRate": "0",
+      "tokenContractAddress": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "tokenSymbol": "OKB",
+      "tokenUnitPrice": "86.02"
+    },
+    "fromTokenAmount": "2500000000000000",
+    "priceImpactPercent": "-0.12",
+    "router": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee--0x74b7f16337b8972027f6196a17a631ac6de26d22",
+    "swapMode": "exactIn",
+    "toToken": {
+      "decimal": "6",
+      "isHoneyPot": false,
+      "taxRate": "0",
+      "tokenContractAddress": "0x74b7f16337b8972027f6196a17a631ac6de26d22",
+      "tokenSymbol": "USDC",
+      "tokenUnitPrice": "0.99987"
+    },
+    "toTokenAmount": "214810",
+    "tradeFee": "0.00040573210575744"
+  }
+}

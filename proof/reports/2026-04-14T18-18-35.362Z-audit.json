@@ -1,0 +1,23 @@
+{
+  "auditedAt": "2026-04-14T18:18:35.362Z",
+  "reportFile": "/Users/sambit/Documents/New project/RouteSentinel-clone/proof/reports/2026-04-14T18-18-35.361Z-execute.json",
+  "txHash": "0xa37c9d2c68368c9e488b4fe8348c34fee8089e0535be0c4777b35f118f5feac5",
+  "fromSymbol": "OKB",
+  "toSymbol": "USDC",
+  "fromAmountRaw": "2500000000000000",
+  "toAmountRaw": "214528",
+  "priceImpact": "-0.2",
+  "gasUsed": "1020231",
+  "capUsd": 0.3,
+  "notionalUsd": 0.214925,
+  "expectedToRaw": "214528",
+  "actualToRaw": "214528",
+  "expectedToUi": 0.214528,
+  "actualToUi": 0.214528,
+  "executionRatio": 1,
+  "verdict": "excellent",
+  "txScanBlocked": false,
+  "txScanRiskCount": 0,
+  "txScanWarnings": [],
+  "txScanRevertReason": null
+}

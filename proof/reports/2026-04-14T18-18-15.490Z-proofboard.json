@@ -1,0 +1,28 @@
+{
+  "command": "proofboard",
+  "createdAt": "2026-04-14T18:18:15.490Z",
+  "totals": {
+    "executeReports": 1,
+    "auditReports": 1,
+    "passedAudits": 1,
+    "passRatePercent": 100,
+    "avgExecutionRatio": 1,
+    "totalNotionalUsd": 0.21505,
+    "maxNotionalUsd": 0.21505
+  },
+  "verdictBreakdown": {
+    "excellent": 1
+  },
+  "recentExecutions": [
+    {
+      "createdAt": "2026-04-14T18:07:37.966Z",
+      "chain": "xlayer",
+      "from": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "to": "0x74b7f16337b8972027f6196a17a631ac6de26d22",
+      "notionalUsd": 0.21505,
+      "txHash": "0x62106f435561236f864575997dd733fdf124291cb14594a5fd471198b4d139fe",
+      "reportFile": "/Users/sambit/Documents/New project/RouteSentinel-clone/proof/reports/2026-04-14T18-07-37.966Z-execute.json"
+    }
+  ],
+  "scoreboardMarkdownFile": "/Users/sambit/Documents/New project/RouteSentinel-clone/proof/reports/scoreboard.md"
+}
