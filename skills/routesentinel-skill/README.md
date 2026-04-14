@@ -1,6 +1,6 @@
 # routesentinel-skill
 
-Official skill package for RouteSentinel (OKX Build X / SkillArena).
+Official skill package for Sentinel Agent / RouteSentinel (OKX Build X).
 
 ## Folder Layout
 
@@ -15,12 +15,13 @@ Official skill package for RouteSentinel (OKX Build X / SkillArena).
 Run from repository root:
 
 ```bash
+npm run demo
+npm run agent -- --wallet <wallet> --mode dry --iterations 3
 npm run judge -- --wallet <wallet> --chain xlayer
-npm run phasec -- --from <from_token> --amount <ui_amount> --chain xlayer --wallet <wallet>
 ```
 
 ## Why This Skill
 
-- Protects users with pre-trade and pre-execution risk checks.
-- Uses route-quality checks to avoid poor liquidity paths.
-- Produces transparent evidence artifacts for judges and users.
+- Acts as an autonomous trade firewall before swap execution.
+- Uses route-quality + token + tx risk checks with fail-closed decisions.
+- Produces transparent machine logs and proofboard artifacts.

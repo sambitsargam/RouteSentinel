@@ -7,6 +7,8 @@
   "scripts": {
     "plan": "node src/cli.mjs plan",
     "simulate": "node src/cli.mjs simulate",
+    "routecheck": "node src/cli.mjs routecheck",
+    "preview": "node src/cli.mjs preview",
     "execute": "node src/cli.mjs execute",
     "audit": "node src/cli.mjs audit",
     "intel": "node src/cli.mjs intel",
@@ -16,6 +18,8 @@
     "phasec": "node src/cli.mjs phasec",
     "judge": "node src/judge.mjs",
     "wizard": "node src/wizard.mjs",
-    "flow": "node src/flow.mjs"
+    "flow": "node src/flow.mjs",
+    "agent": "node src/agent.mjs run",
+    "demo": "node src/demo.mjs"
   }
 }

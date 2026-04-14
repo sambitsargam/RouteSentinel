@@ -17,6 +17,8 @@ RouteSentinel CLI
 Commands:
   plan       --from <addr> --to <addr> --amount <ui_amount> --chain <chain> [--wallet <addr>]
   simulate   --from <addr> --to <addr> --amount <ui_amount> --chain <chain>
+  routecheck --from <addr> --to <addr> --amount <ui_amount> --chain <chain> [--min-roundtrip-ratio <ratio>] [--max-loss-percent <pct>]
+  preview    --from <addr> --to <addr> --amount <ui_amount> --chain <chain> --wallet <addr>
   execute    --from <addr> --to <addr> --amount <ui_amount> --chain <chain> --wallet <addr> [--skip-tx-scan yes]
   audit      [--file <report_file>]   # defaults to latest execute report
   intel      --to <addr> --chain <chain>
@@ -27,6 +29,8 @@ Commands:
 
 Examples:
   npm run simulate -- --from 0xeeee... --to 0x74b7... --amount 0.0025 --chain xlayer
+  npm run routecheck -- --from 0xeeee... --to 0x74b7... --amount 0.0025 --chain xlayer
+  npm run preview -- --from 0xeeee... --to 0x74b7... --amount 0.0025 --chain xlayer --wallet 0xabc...
   npm run execute -- --from 0xeeee... --to 0x74b7... --amount 0.0025 --chain xlayer --wallet 0xabc...
   npm run intel -- --to 0x74b7... --chain xlayer
   npm run scout -- --chain xlayer --max-candidates 10
@@ -187,6 +191,16 @@ function computeNotionalUsd(quote) {
   return uiAmount * unitPrice;
 }
 
+function extractDexNames(quote) {
+  const names = [];
+  for (const row of toArray(quote?.dexRouterList)) {
+    const dexName = String(row?.dexProtocol?.dexName || "").trim();
+    if (!dexName) continue;
+    names.push(dexName);
+  }
+  return Array.from(new Set(names));
+}
+
 function writeReport(kind, payload) {
   const ts = new Date().toISOString().replaceAll(":", "-");
   const file = path.join(REPORT_DIR, `${ts}-${kind}.json`);
@@ -284,7 +298,9 @@ function evaluateRouteQuality(opts) {
       fromRaw: forward.fromTokenAmount || null,
       toRaw: forward.toTokenAmount || null,
       priceImpactPercent: toNumber(forward.priceImpactPercent),
-      tradeFee: toNumber(forward.tradeFee)
+      tradeFee: toNumber(forward.tradeFee),
+      router: forward.router || null,
+      dexNames: extractDexNames(forward)
     },
     reverse: {
       fromSymbol: reverse.fromToken?.tokenSymbol || null,
@@ -292,7 +308,9 @@ function evaluateRouteQuality(opts) {
       fromRaw: reverse.fromTokenAmount || null,
       toRaw: reverse.toTokenAmount || null,
       priceImpactPercent: toNumber(reverse.priceImpactPercent),
-      tradeFee: toNumber(reverse.tradeFee)
+      tradeFee: toNumber(reverse.tradeFee),
+      router: reverse.router || null,
+      dexNames: extractDexNames(reverse)
     },
     roundTrip: {
       ratio: roundTripRatio,
@@ -501,6 +519,112 @@ function simulate(opts) {
       `Simulation blocked: notional $${notionalUsd.toFixed(6)} exceeds cap $${MAX_TEST_USD.toFixed(2)}.`
     );
   }
+  return { report, file };
+}
+
+function routecheck(opts) {
+  requireFields(opts, ["from", "to", "amount", "chain"]);
+
+  const minRoundTripRatio = toNumber(opts["min-roundtrip-ratio"]) ?? 0.99;
+  const maxLossPercent = toNumber(opts["max-loss-percent"]) ?? (1 - minRoundTripRatio) * 100;
+  const quality = evaluateRouteQuality(opts);
+  const ratio = toNumber(quality.roundTrip?.ratio);
+  const lossPercent = toNumber(quality.roundTrip?.lossPercent);
+
+  const passesRatio = ratio !== null && ratio >= minRoundTripRatio;
+  const passesLoss = lossPercent !== null && lossPercent <= maxLossPercent;
+  const allow = passesRatio && passesLoss;
+
+  const reasons = [];
+  if (!passesRatio) {
+    reasons.push(
+      `Round-trip ratio ${formatUsd(ratio)} is below threshold ${formatUsd(minRoundTripRatio)}.`
+    );
+  }
+  if (!passesLoss) {
+    reasons.push(
+      `Round-trip loss ${formatUsd(lossPercent)}% exceeds threshold ${formatUsd(maxLossPercent)}%.`
+    );
+  }
+  if (allow) {
+    reasons.push("Route quality is within configured thresholds.");
+  }
+
+  const report = {
+    command: "routecheck",
+    createdAt: new Date().toISOString(),
+    request: {
+      from: opts.from,
+      to: opts.to,
+      amount: String(opts.amount),
+      chain: opts.chain
+    },
+    policy: {
+      minRoundTripRatio,
+      maxLossPercent
+    },
+    quality,
+    recommendation: {
+      allow,
+      verdict: allow ? "approve" : "reject",
+      reasons
+    },
+    metrics: {
+      roundTripRatio: ratio,
+      roundTripLossPercent: lossPercent
+    }
+  };
+
+  const file = writeReport("routecheck", report);
+  return { report, file };
+}
+
+function preview(opts) {
+  requireFields(opts, ["from", "to", "amount", "chain", "wallet"]);
+
+  const sim = simulate(opts);
+  const swapPreview = getSwapPreview(opts);
+  const previewSummary = compactSwapPreview(swapPreview);
+  const txScan = runTxScan(opts.chain, swapPreview);
+  const txScanGuard = assessTxScan(txScan);
+
+  const dexNames = extractDexNames(sim.report.quote);
+  const hasUniswapRoute = dexNames.some((name) =>
+    String(name).toLowerCase().includes("uniswap")
+  );
+
+  const report = {
+    command: "preview",
+    createdAt: new Date().toISOString(),
+    request: {
+      from: opts.from,
+      to: opts.to,
+      amount: String(opts.amount),
+      chain: opts.chain,
+      wallet: opts.wallet
+    },
+    guardrails: sim.report.guardrails,
+    simulationReportFile: sim.file,
+    quoteSnapshot: sim.report.quote,
+    tokenScanSnapshot: sim.report.tokenScan,
+    txPreview: previewSummary,
+    txScan,
+    txScanGuard,
+    executionHints: {
+      dexNames,
+      hasUniswapRoute,
+      route: sim.report.quote?.router || null
+    },
+    recommendation: {
+      allow: !txScanGuard.blocked,
+      verdict: txScanGuard.blocked ? "reject" : "approve",
+      reasons: txScanGuard.blocked
+        ? ["Critical tx-scan risk detected during preview."]
+        : ["Preview passed tx-scan risk gate."]
+    }
+  };
+
+  const file = writeReport("preview", report);
   return { report, file };
 }
 
@@ -1616,6 +1740,10 @@ function main() {
     result = { report, file };
   } else if (command === "simulate") {
     result = simulate(options);
+  } else if (command === "routecheck") {
+    result = routecheck(options);
+  } else if (command === "preview") {
+    result = preview(options);
   } else if (command === "execute") {
     result = execute(options);
   } else if (command === "audit") {

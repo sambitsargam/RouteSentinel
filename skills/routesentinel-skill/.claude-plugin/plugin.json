@@ -1,7 +1,7 @@
 {
   "name": "routesentinel-skill",
-  "description": "Execution-aware swap safety skill for X Layer using OnchainOS with route-quality checks, risk gates, and audit proofs.",
-  "version": "1.0.0",
+  "description": "Sentinel Agent: autonomous trade firewall for X Layer with fail-closed route, token, and tx risk decisions.",
+  "version": "1.1.0",
   "author": {
     "name": "Sambit"
   },

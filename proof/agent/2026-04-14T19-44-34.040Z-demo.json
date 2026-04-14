@@ -1,0 +1,199 @@
+{
+  "ok": true,
+  "generatedAt": "2026-04-14T19:44:34.039Z",
+  "mode": "synthetic_only",
+  "cases": [
+    {
+      "id": "case-1",
+      "title": "Detected honeypot token -> BLOCKED",
+      "mode": "synthetic",
+      "decision": {
+        "status": "REJECT",
+        "code": "HONEYPOT_OR_TOKEN_RISK",
+        "reason": "Token risk scanner flagged critical risk.",
+        "nextAction": "Block trade and switch to a different token.",
+        "humanExplanation": "REJECTED: Token risk scanner flagged critical risk.",
+        "machine": {
+          "decision": "reject",
+          "code": "HONEYPOT_OR_TOKEN_RISK",
+          "reason": "Token risk scanner flagged critical risk.",
+          "details": {
+            "candidateToken": "0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+            "routeRatio": 0.9985,
+            "routeLossPercent": 0.15,
+            "criticalTokenRisk": true,
+            "txRiskBlocked": false,
+            "txRiskCount": 0,
+            "hasUniswapRoute": true,
+            "dexNames": [
+              "Uniswap V3"
+            ],
+            "notionalUsd": 0.12
+          }
+        }
+      },
+      "summary": "decision=REJECT | code=HONEYPOT_OR_TOKEN_RISK | ratio=0.998500 | lossPct=0.1500 | notionalUsd=0.120000 | uniswap=yes",
+      "analysis": {
+        "candidateToken": "0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+        "routecheck": {
+          "metrics": {
+            "roundTripRatio": 0.9985,
+            "roundTripLossPercent": 0.15
+          },
+          "recommendation": {
+            "allow": true
+          }
+        },
+        "preview": {
+          "guardrails": {
+            "notionalUsd": 0.12
+          },
+          "tokenScanSnapshot": {
+            "isHoneypot": true,
+            "isRiskToken": true,
+            "isRubbishAirdrop": false
+          },
+          "txScanGuard": {
+            "blocked": false,
+            "riskCount": 0
+          },
+          "executionHints": {
+            "dexNames": [
+              "Uniswap V3"
+            ],
+            "hasUniswapRoute": true
+          }
+        }
+      }
+    },
+    {
+      "id": "case-2",
+      "title": "Route inefficiency detected -> BLOCKED",
+      "mode": "synthetic",
+      "decision": {
+        "status": "REJECT",
+        "code": "ROUTE_INEFFICIENT",
+        "reason": "Route-quality gate rejected this route.",
+        "nextAction": "Retry with next candidate route.",
+        "humanExplanation": "REJECTED: Route-quality gate rejected this route.",
+        "machine": {
+          "decision": "reject",
+          "code": "ROUTE_INEFFICIENT",
+          "reason": "Route-quality gate rejected this route.",
+          "details": {
+            "candidateToken": "0xbadroutebadroutebadroutebadroutebadroute",
+            "routeRatio": 0.9123,
+            "routeLossPercent": 8.77,
+            "criticalTokenRisk": false,
+            "txRiskBlocked": false,
+            "txRiskCount": 0,
+            "hasUniswapRoute": true,
+            "dexNames": [
+              "Uniswap V3"
+            ],
+            "notionalUsd": 0.11
+          }
+        }
+      },
+      "summary": "decision=REJECT | code=ROUTE_INEFFICIENT | ratio=0.912300 | lossPct=8.7700 | notionalUsd=0.110000 | uniswap=yes",
+      "analysis": {
+        "candidateToken": "0xbadroutebadroutebadroutebadroutebadroute",
+        "routecheck": {
+          "metrics": {
+            "roundTripRatio": 0.9123,
+            "roundTripLossPercent": 8.77
+          },
+          "recommendation": {
+            "allow": false,
+            "verdict": "reject"
+          }
+        },
+        "preview": {
+          "guardrails": {
+            "notionalUsd": 0.11
+          },
+          "tokenScanSnapshot": {
+            "isHoneypot": false,
+            "isRiskToken": false,
+            "isRubbishAirdrop": false
+          },
+          "txScanGuard": {
+            "blocked": false,
+            "riskCount": 0
+          },
+          "executionHints": {
+            "dexNames": [
+              "Uniswap V3"
+            ],
+            "hasUniswapRoute": true
+          }
+        }
+      }
+    },
+    {
+      "id": "case-3",
+      "title": "Safe route -> EXECUTED via Uniswap",
+      "mode": "synthetic",
+      "decision": {
+        "status": "APPROVE",
+        "code": "SAFE_TO_EXECUTE",
+        "reason": "All firewall checks passed.",
+        "nextAction": "Execute swap and publish proof artifacts.",
+        "humanExplanation": "APPROVED: All firewall checks passed.",
+        "machine": {
+          "decision": "approve",
+          "code": "SAFE_TO_EXECUTE",
+          "reason": "all_checks_passed",
+          "warning": null,
+          "details": {
+            "candidateToken": "0xfeedfeedfeedfeedfeedfeedfeedfeedfeedfeed",
+            "routeRatio": 0.9979,
+            "routeLossPercent": 0.21,
+            "criticalTokenRisk": false,
+            "txRiskBlocked": false,
+            "txRiskCount": 0,
+            "hasUniswapRoute": true,
+            "dexNames": [
+              "Uniswap V3"
+            ],
+            "notionalUsd": 0.13
+          }
+        }
+      },
+      "summary": "decision=APPROVE | code=SAFE_TO_EXECUTE | ratio=0.997900 | lossPct=0.2100 | notionalUsd=0.130000 | uniswap=yes",
+      "analysis": {
+        "candidateToken": "0xfeedfeedfeedfeedfeedfeedfeedfeedfeedfeed",
+        "routecheck": {
+          "metrics": {
+            "roundTripRatio": 0.9979,
+            "roundTripLossPercent": 0.21
+          },
+          "recommendation": {
+            "allow": true,
+            "verdict": "approve"
+          }
+        },
+        "preview": {
+          "guardrails": {
+            "notionalUsd": 0.13
+          },
+          "tokenScanSnapshot": {
+            "isHoneypot": false,
+            "isRiskToken": false,
+            "isRubbishAirdrop": false
+          },
+          "txScanGuard": {
+            "blocked": false,
+            "riskCount": 0
+          },
+          "executionHints": {
+            "dexNames": [
+              "Uniswap V3"
+            ],
+            "hasUniswapRoute": true
+          }
+        }
+      }
+    }
+  ]
+}

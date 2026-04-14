@@ -1,0 +1,59 @@
+{
+  "command": "routecheck",
+  "createdAt": "2026-04-14T19:48:44.130Z",
+  "request": {
+    "from": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "to": "0x74b7f16337b8972027f6196a17a631ac6de26d22",
+    "amount": "0.0025",
+    "chain": "xlayer"
+  },
+  "policy": {
+    "minRoundTripRatio": 0.99,
+    "maxLossPercent": 1
+  },
+  "quality": {
+    "forward": {
+      "fromSymbol": "OKB",
+      "toSymbol": "USDC",
+      "fromRaw": "2500000000000000",
+      "toRaw": "213944",
+      "priceImpactPercent": -0.22,
+      "tradeFee": 0.000664193058816,
+      "router": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee--0x74b7f16337b8972027f6196a17a631ac6de26d22",
+      "dexNames": [
+        "Unknown Uniswap V3 Fork"
+      ]
+    },
+    "reverse": {
+      "fromSymbol": "USDC",
+      "toSymbol": "OKB",
+      "fromRaw": "213944",
+      "toRaw": "2494198218838165",
+      "priceImpactPercent": -0.01,
+      "tradeFee": 0.001726064787265,
+      "router": "0x74b7f16337b8972027f6196a17a631ac6de26d22--0x779ded0c9e1022225f8e0630b35a9b54be713736--0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "dexNames": [
+        "OkieStableSwap",
+        "Uniswap V4"
+      ]
+    },
+    "roundTrip": {
+      "ratio": 0.997679287535266,
+      "lossPercent": 0.2320712464733976,
+      "reverseInputUi": 0.213944,
+      "reverseInputReadable": "0.213944",
+      "reverseOutputUi": 0.002494198218838165
+    }
+  },
+  "recommendation": {
+    "allow": true,
+    "verdict": "approve",
+    "reasons": [
+      "Route quality is within configured thresholds."
+    ]
+  },
+  "metrics": {
+    "roundTripRatio": 0.997679287535266,
+    "roundTripLossPercent": 0.2320712464733976
+  }
+}

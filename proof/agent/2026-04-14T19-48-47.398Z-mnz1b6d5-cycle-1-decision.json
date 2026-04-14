@@ -1,0 +1,527 @@
+{
+  "command": "agent",
+  "runId": "mnz1b6d5",
+  "cycle": 1,
+  "createdAt": "2026-04-14T19:48:47.397Z",
+  "mode": "dry",
+  "intent": {
+    "source": "user_intent",
+    "from": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "to": "0x74b7f16337b8972027f6196a17a631ac6de26d22",
+    "amount": "0.0025",
+    "chain": "xlayer",
+    "wallet": "0xd2f83a7ac9537d5392eaac58f0649c37825c8d74"
+  },
+  "selection": {
+    "source": "user_intent",
+    "queue": [
+      "0x74b7f16337b8972027f6196a17a631ac6de26d22"
+    ],
+    "context": null
+  },
+  "analysis": {
+    "attempts": [
+      {
+        "candidateToken": "0x74b7f16337b8972027f6196a17a631ac6de26d22",
+        "analysis": {
+          "candidateToken": "0x74b7f16337b8972027f6196a17a631ac6de26d22",
+          "routecheck": {
+            "command": "routecheck",
+            "createdAt": "2026-04-14T19:48:44.130Z",
+            "request": {
+              "from": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+              "to": "0x74b7f16337b8972027f6196a17a631ac6de26d22",
+              "amount": "0.0025",
+              "chain": "xlayer"
+            },
+            "policy": {
+              "minRoundTripRatio": 0.99,
+              "maxLossPercent": 1
+            },
+            "quality": {
+              "forward": {
+                "fromSymbol": "OKB",
+                "toSymbol": "USDC",
+                "fromRaw": "2500000000000000",
+                "toRaw": "213944",
+                "priceImpactPercent": -0.22,
+                "tradeFee": 0.000664193058816,
+                "router": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee--0x74b7f16337b8972027f6196a17a631ac6de26d22",
+                "dexNames": [
+                  "Unknown Uniswap V3 Fork"
+                ]
+              },
+              "reverse": {
+                "fromSymbol": "USDC",
+                "toSymbol": "OKB",
+                "fromRaw": "213944",
+                "toRaw": "2494198218838165",
+                "priceImpactPercent": -0.01,
+                "tradeFee": 0.001726064787265,
+                "router": "0x74b7f16337b8972027f6196a17a631ac6de26d22--0x779ded0c9e1022225f8e0630b35a9b54be713736--0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+                "dexNames": [
+                  "OkieStableSwap",
+                  "Uniswap V4"
+                ]
+              },
+              "roundTrip": {
+                "ratio": 0.997679287535266,
+                "lossPercent": 0.2320712464733976,
+                "reverseInputUi": 0.213944,
+                "reverseInputReadable": "0.213944",
+                "reverseOutputUi": 0.002494198218838165
+              }
+            },
+            "recommendation": {
+              "allow": true,
+              "verdict": "approve",
+              "reasons": [
+                "Route quality is within configured thresholds."
+              ]
+            },
+            "metrics": {
+              "roundTripRatio": 0.997679287535266,
+              "roundTripLossPercent": 0.2320712464733976
+            }
+          },
+          "routecheckFile": "/Users/sambit/Documents/New project/RouteSentinel-clone/proof/reports/2026-04-14T19-48-44.132Z-routecheck.json",
+          "routecheckError": null,
+          "preview": {
+            "command": "preview",
+            "createdAt": "2026-04-14T19:48:47.385Z",
+            "request": {
+              "from": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+              "to": "0x74b7f16337b8972027f6196a17a631ac6de26d22",
+              "amount": "0.0025",
+              "chain": "xlayer",
+              "wallet": "0xd2f83a7ac9537d5392eaac58f0649c37825c8d74"
+            },
+            "guardrails": {
+              "maxTestUsd": 0.3,
+              "notionalUsd": 0.214375,
+              "passCap": true
+            },
+            "simulationReportFile": "/Users/sambit/Documents/New project/RouteSentinel-clone/proof/reports/2026-04-14T19-48-45.723Z-simulate.json",
+            "quoteSnapshot": {
+              "chainIndex": "196",
+              "contextSlot": 57424777,
+              "dexRouterList": [
+                {
+                  "dexProtocol": {
+                    "dexName": "Unknown Uniswap V3 Fork",
+                    "percent": "100"
+                  },
+                  "fromToken": {
+                    "decimal": "18",
+                    "isHoneyPot": false,
+                    "taxRate": "0",
+                    "tokenContractAddress": "0xe538905cf8410324e03a5a23c1c177a474d59b2b",
+                    "tokenSymbol": "WOKB",
+                    "tokenUnitPrice": "85.75"
+                  },
+                  "fromTokenIndex": "0",
+                  "toToken": {
+                    "decimal": "6",
+                    "isHoneyPot": false,
+                    "taxRate": "0",
+                    "tokenContractAddress": "0x74b7f16337b8972027f6196a17a631ac6de26d22",
+                    "tokenSymbol": "USDC",
+                    "tokenUnitPrice": "0.99979"
+                  },
+                  "toTokenIndex": "1"
+                }
+              ],
+              "estimateGasFee": "288000",
+              "fromToken": {
+                "decimal": "18",
+                "isHoneyPot": false,
+                "taxRate": "0",
+                "tokenContractAddress": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+                "tokenSymbol": "OKB",
+                "tokenUnitPrice": "85.75"
+              },
+              "fromTokenAmount": "2500000000000000",
+              "priceImpactPercent": "-0.22",
+              "router": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee--0x74b7f16337b8972027f6196a17a631ac6de26d22",
+              "swapMode": "exactIn",
+              "toToken": {
+                "decimal": "6",
+                "isHoneyPot": false,
+                "taxRate": "0",
+                "tokenContractAddress": "0x74b7f16337b8972027f6196a17a631ac6de26d22",
+                "tokenSymbol": "USDC",
+                "tokenUnitPrice": "0.99979"
+              },
+              "toTokenAmount": "213944",
+              "tradeFee": "0.00086755088784"
+            },
+            "tokenScanSnapshot": {
+              "buyTaxes": "0",
+              "chainId": "196",
+              "isAirdropScam": false,
+              "isChainSupported": true,
+              "isCounterfeit": false,
+              "isDumping": false,
+              "isFakeLiquidity": false,
+              "isFundLinkage": false,
+              "isHasAssetEditAuth": false,
+              "isHasBlockingHis": false,
+              "isHasFrozenAuth": false,
+              "isHoneypot": false,
+              "isLiquidityRemoval": false,
+              "isLowLiquidity": false,
+              "isMintable": true,
+              "isNotRenounced": false,
+              "isOverIssued": false,
+              "isPump": false,
+              "isRiskToken": false,
+              "isRubbishAirdrop": false,
+              "isVeryHighLpHolderProp": false,
+              "isVeryLowLpBurn": false,
+              "isWash": false,
+              "isWash2": false,
+              "sellTaxes": "0",
+              "tokenAddress": "0x74b7f16337b8972027f6196a17a631ac6de26d22"
+            },
+            "txPreview": {
+              "router": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee--0x74b7f16337b8972027f6196a17a631ac6de26d22",
+              "fromAmountRaw": "2500000000000000",
+              "toAmountRaw": "213944",
+              "priceImpactPercent": "-0.22",
+              "tradeFee": "0.00086755088784",
+              "minReceiveAmount": "212232",
+              "gas": "288000",
+              "gasPrice": "59693810",
+              "to": "0xD1b8997AaC08c619d40Be2e4284c9C72cAB33954",
+              "value": "2500000000000000",
+              "calldataBytes": 965
+            },
+            "txScan": {
+              "skipped": false,
+              "reason": null,
+              "result": {
+                "action": "",
+                "riskItemDetail": [],
+                "simulator": {
+                  "gasLimit": null,
+                  "gasUsed": null,
+                  "revertReason": ""
+                },
+                "warnings": [
+                  "evm CallWithContext debug_traceCall node failed: invalid argument 0: json: cannot unmarshal hex string without 0x prefix into Go struct field TransactionArgs.gasPrice of type *hexutil.Big"
+                ]
+              },
+              "error": null
+            },
+            "txScanGuard": {
+              "blocked": false,
+              "reason": "ok",
+              "riskCount": 0,
+              "warningCount": 1,
+              "warnings": [
+                "evm CallWithContext debug_traceCall node failed: invalid argument 0: json: cannot unmarshal hex string without 0x prefix into Go struct field TransactionArgs.gasPrice of type *hexutil.Big"
+              ],
+              "revertReason": null
+            },
+            "executionHints": {
+              "dexNames": [
+                "Unknown Uniswap V3 Fork"
+              ],
+              "hasUniswapRoute": true,
+              "route": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee--0x74b7f16337b8972027f6196a17a631ac6de26d22"
+            },
+            "recommendation": {
+              "allow": true,
+              "verdict": "approve",
+              "reasons": [
+                "Preview passed tx-scan risk gate."
+              ]
+            }
+          },
+          "previewFile": "/Users/sambit/Documents/New project/RouteSentinel-clone/proof/reports/2026-04-14T19-48-47.385Z-preview.json",
+          "previewError": null
+        },
+        "decision": {
+          "status": "APPROVE",
+          "code": "SAFE_TO_EXECUTE",
+          "reason": "All firewall checks passed.",
+          "nextAction": "Execute swap and publish proof artifacts.",
+          "humanExplanation": "APPROVED: All firewall checks passed.",
+          "machine": {
+            "decision": "approve",
+            "code": "SAFE_TO_EXECUTE",
+            "reason": "all_checks_passed",
+            "warning": null,
+            "details": {
+              "candidateToken": "0x74b7f16337b8972027f6196a17a631ac6de26d22",
+              "routeRatio": 0.997679287535266,
+              "routeLossPercent": 0.2320712464733976,
+              "criticalTokenRisk": false,
+              "txRiskBlocked": false,
+              "txRiskCount": 0,
+              "hasUniswapRoute": true,
+              "dexNames": [
+                "Unknown Uniswap V3 Fork"
+              ],
+              "notionalUsd": 0.214375
+            }
+          }
+        },
+        "summary": "decision=APPROVE | code=SAFE_TO_EXECUTE | ratio=0.997679 | lossPct=0.2321 | notionalUsd=0.214375 | uniswap=yes"
+      }
+    ],
+    "selectedAttempt": {
+      "candidateToken": "0x74b7f16337b8972027f6196a17a631ac6de26d22",
+      "routecheck": {
+        "command": "routecheck",
+        "createdAt": "2026-04-14T19:48:44.130Z",
+        "request": {
+          "from": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "to": "0x74b7f16337b8972027f6196a17a631ac6de26d22",
+          "amount": "0.0025",
+          "chain": "xlayer"
+        },
+        "policy": {
+          "minRoundTripRatio": 0.99,
+          "maxLossPercent": 1
+        },
+        "quality": {
+          "forward": {
+            "fromSymbol": "OKB",
+            "toSymbol": "USDC",
+            "fromRaw": "2500000000000000",
+            "toRaw": "213944",
+            "priceImpactPercent": -0.22,
+            "tradeFee": 0.000664193058816,
+            "router": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee--0x74b7f16337b8972027f6196a17a631ac6de26d22",
+            "dexNames": [
+              "Unknown Uniswap V3 Fork"
+            ]
+          },
+          "reverse": {
+            "fromSymbol": "USDC",
+            "toSymbol": "OKB",
+            "fromRaw": "213944",
+            "toRaw": "2494198218838165",
+            "priceImpactPercent": -0.01,
+            "tradeFee": 0.001726064787265,
+            "router": "0x74b7f16337b8972027f6196a17a631ac6de26d22--0x779ded0c9e1022225f8e0630b35a9b54be713736--0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "dexNames": [
+              "OkieStableSwap",
+              "Uniswap V4"
+            ]
+          },
+          "roundTrip": {
+            "ratio": 0.997679287535266,
+            "lossPercent": 0.2320712464733976,
+            "reverseInputUi": 0.213944,
+            "reverseInputReadable": "0.213944",
+            "reverseOutputUi": 0.002494198218838165
+          }
+        },
+        "recommendation": {
+          "allow": true,
+          "verdict": "approve",
+          "reasons": [
+            "Route quality is within configured thresholds."
+          ]
+        },
+        "metrics": {
+          "roundTripRatio": 0.997679287535266,
+          "roundTripLossPercent": 0.2320712464733976
+        }
+      },
+      "routecheckFile": "/Users/sambit/Documents/New project/RouteSentinel-clone/proof/reports/2026-04-14T19-48-44.132Z-routecheck.json",
+      "routecheckError": null,
+      "preview": {
+        "command": "preview",
+        "createdAt": "2026-04-14T19:48:47.385Z",
+        "request": {
+          "from": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "to": "0x74b7f16337b8972027f6196a17a631ac6de26d22",
+          "amount": "0.0025",
+          "chain": "xlayer",
+          "wallet": "0xd2f83a7ac9537d5392eaac58f0649c37825c8d74"
+        },
+        "guardrails": {
+          "maxTestUsd": 0.3,
+          "notionalUsd": 0.214375,
+          "passCap": true
+        },
+        "simulationReportFile": "/Users/sambit/Documents/New project/RouteSentinel-clone/proof/reports/2026-04-14T19-48-45.723Z-simulate.json",
+        "quoteSnapshot": {
+          "chainIndex": "196",
+          "contextSlot": 57424777,
+          "dexRouterList": [
+            {
+              "dexProtocol": {
+                "dexName": "Unknown Uniswap V3 Fork",
+                "percent": "100"
+              },
+              "fromToken": {
+                "decimal": "18",
+                "isHoneyPot": false,
+                "taxRate": "0",
+                "tokenContractAddress": "0xe538905cf8410324e03a5a23c1c177a474d59b2b",
+                "tokenSymbol": "WOKB",
+                "tokenUnitPrice": "85.75"
+              },
+              "fromTokenIndex": "0",
+              "toToken": {
+                "decimal": "6",
+                "isHoneyPot": false,
+                "taxRate": "0",
+                "tokenContractAddress": "0x74b7f16337b8972027f6196a17a631ac6de26d22",
+                "tokenSymbol": "USDC",
+                "tokenUnitPrice": "0.99979"
+              },
+              "toTokenIndex": "1"
+            }
+          ],
+          "estimateGasFee": "288000",
+          "fromToken": {
+            "decimal": "18",
+            "isHoneyPot": false,
+            "taxRate": "0",
+            "tokenContractAddress": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "tokenSymbol": "OKB",
+            "tokenUnitPrice": "85.75"
+          },
+          "fromTokenAmount": "2500000000000000",
+          "priceImpactPercent": "-0.22",
+          "router": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee--0x74b7f16337b8972027f6196a17a631ac6de26d22",
+          "swapMode": "exactIn",
+          "toToken": {
+            "decimal": "6",
+            "isHoneyPot": false,
+            "taxRate": "0",
+            "tokenContractAddress": "0x74b7f16337b8972027f6196a17a631ac6de26d22",
+            "tokenSymbol": "USDC",
+            "tokenUnitPrice": "0.99979"
+          },
+          "toTokenAmount": "213944",
+          "tradeFee": "0.00086755088784"
+        },
+        "tokenScanSnapshot": {
+          "buyTaxes": "0",
+          "chainId": "196",
+          "isAirdropScam": false,
+          "isChainSupported": true,
+          "isCounterfeit": false,
+          "isDumping": false,
+          "isFakeLiquidity": false,
+          "isFundLinkage": false,
+          "isHasAssetEditAuth": false,
+          "isHasBlockingHis": false,
+          "isHasFrozenAuth": false,
+          "isHoneypot": false,
+          "isLiquidityRemoval": false,
+          "isLowLiquidity": false,
+          "isMintable": true,
+          "isNotRenounced": false,
+          "isOverIssued": false,
+          "isPump": false,
+          "isRiskToken": false,
+          "isRubbishAirdrop": false,
+          "isVeryHighLpHolderProp": false,
+          "isVeryLowLpBurn": false,
+          "isWash": false,
+          "isWash2": false,
+          "sellTaxes": "0",
+          "tokenAddress": "0x74b7f16337b8972027f6196a17a631ac6de26d22"
+        },
+        "txPreview": {
+          "router": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee--0x74b7f16337b8972027f6196a17a631ac6de26d22",
+          "fromAmountRaw": "2500000000000000",
+          "toAmountRaw": "213944",
+          "priceImpactPercent": "-0.22",
+          "tradeFee": "0.00086755088784",
+          "minReceiveAmount": "212232",
+          "gas": "288000",
+          "gasPrice": "59693810",
+          "to": "0xD1b8997AaC08c619d40Be2e4284c9C72cAB33954",
+          "value": "2500000000000000",
+          "calldataBytes": 965
+        },
+        "txScan": {
+          "skipped": false,
+          "reason": null,
+          "result": {
+            "action": "",
+            "riskItemDetail": [],
+            "simulator": {
+              "gasLimit": null,
+              "gasUsed": null,
+              "revertReason": ""
+            },
+            "warnings": [
+              "evm CallWithContext debug_traceCall node failed: invalid argument 0: json: cannot unmarshal hex string without 0x prefix into Go struct field TransactionArgs.gasPrice of type *hexutil.Big"
+            ]
+          },
+          "error": null
+        },
+        "txScanGuard": {
+          "blocked": false,
+          "reason": "ok",
+          "riskCount": 0,
+          "warningCount": 1,
+          "warnings": [
+            "evm CallWithContext debug_traceCall node failed: invalid argument 0: json: cannot unmarshal hex string without 0x prefix into Go struct field TransactionArgs.gasPrice of type *hexutil.Big"
+          ],
+          "revertReason": null
+        },
+        "executionHints": {
+          "dexNames": [
+            "Unknown Uniswap V3 Fork"
+          ],
+          "hasUniswapRoute": true,
+          "route": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee--0x74b7f16337b8972027f6196a17a631ac6de26d22"
+        },
+        "recommendation": {
+          "allow": true,
+          "verdict": "approve",
+          "reasons": [
+            "Preview passed tx-scan risk gate."
+          ]
+        }
+      },
+      "previewFile": "/Users/sambit/Documents/New project/RouteSentinel-clone/proof/reports/2026-04-14T19-48-47.385Z-preview.json",
+      "previewError": null
+    }
+  },
+  "decision": {
+    "status": "APPROVE",
+    "code": "SAFE_TO_EXECUTE",
+    "reason": "All firewall checks passed.",
+    "nextAction": "Execute swap and publish proof artifacts.",
+    "humanExplanation": "APPROVED: All firewall checks passed.",
+    "machine": {
+      "decision": "approve",
+      "code": "SAFE_TO_EXECUTE",
+      "reason": "all_checks_passed",
+      "warning": null,
+      "details": {
+        "candidateToken": "0x74b7f16337b8972027f6196a17a631ac6de26d22",
+        "routeRatio": 0.997679287535266,
+        "routeLossPercent": 0.2320712464733976,
+        "criticalTokenRisk": false,
+        "txRiskBlocked": false,
+        "txRiskCount": 0,
+        "hasUniswapRoute": true,
+        "dexNames": [
+          "Unknown Uniswap V3 Fork"
+        ],
+        "notionalUsd": 0.214375
+      }
+    }
+  },
+  "action": {
+    "executed": false,
+    "skipped": true,
+    "txHash": null,
+    "executeFile": null,
+    "auditFile": null,
+    "auditVerdict": null,
+    "reason": "dry_mode_no_execution"
+  }
+}

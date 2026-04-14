@@ -1,49 +1,169 @@
-# RouteSentinel
+# Sentinel Agent
 
-> Execution-aware swap safety skill for autonomous agents on X Layer.
+## AI Trade Firewall for Autonomous Agents on X Layer
 
-`ProjectSubmission SkillArena`
+`ProjectSubmission XLayerArena`
 
-RouteSentinel is a reusable skill that blocks unsafe swaps before execution. It combines candidate scouting, route-quality checks, token/tx security scanning, and proof-grade reporting in one flow.
+Sentinel Agent is an autonomous decision firewall that evaluates every trade intent before execution.
+
+It is built on top of RouteSentinel core safety primitives:
+
+- candidate scouting
+- route-quality validation (forward + reverse quote)
+- token risk scanning
+- transaction risk scanning
+- fail-closed execution gates
+- proofboard evidence outputs
+
+This is not a passive safety checker.
+This is an **active agent** that decides: `APPROVE` or `REJECT` before funds move.
+
+---
 
 ## Problem
 
-Agents can execute faster than humans, but most trading flows still fail in two places:
+Autonomous agents can execute on-chain faster than humans, but unsafe routes, honeypots, and tx-level traps still cause real losses.
 
-- token risk is checked too late,
-- route quality is not validated before spending funds.
+Most systems optimize for speed first, safety second.
+Sentinel Agent flips this model:
 
-Result: bad fills, honeypot exposure, and no transparent proof for users.
+- safety is the first decision,
+- execution is allowed only after firewall approval.
 
-## What We Built
+---
 
-RouteSentinel is a fail-closed swap pipeline for X Layer:
+## Solution
 
-1. `scout` discovers candidate tokens from live signal sources.
-2. Route-quality guard runs forward + reverse quote checks.
-3. `token-scan` gate blocks critical token risk.
-4. `tx-scan` gate blocks critical transaction risk.
-5. `phasec` runs dry by default and only goes live with explicit confirmation.
-6. `proofboard` aggregates machine-readable evidence for judges and users.
+Sentinel Agent runs a deterministic decision loop:
 
-## Why This Is Useful
+`analyze -> decide -> act -> log`
 
-- Safer default behavior for agent swaps.
-- Tiny test-notional guardrail (`MAX_TEST_USD=0.30` default).
-- One-command judge flow (`npm run judge`) with reproducible artifacts.
-- Reusable skill packaging for other agents (`skills/routesentinel-skill/`).
+For each trade intent:
 
-## Architecture
+1. Analyze route quality and risk
+2. Decide using fail-closed policy
+3. Execute only when approved
+4. Log machine + human-readable reasoning for proof
 
-```mermaid
-flowchart TD
-  A[Scout Candidates] --> B[Route Quality Check]
-  B --> C[Token Risk Gate]
-  C --> D[Tx Risk Gate]
-  D --> E[Micro Execution]
-  E --> F[Audit]
-  F --> G[Proofboard]
+---
+
+## System Architecture
+
+```text
++------------------------- Sentinel Agent Layer --------------------------+
+|  Intent Input (user/autonomous)                                        |
+|    -> Candidate Queue (manual token or auto phasec scout)              |
+|    -> Decision Engine (rule-based firewall)                            |
+|    -> Action (execute/reject/retry)                                    |
+|    -> Decision Logs + Agent Proofboard                                 |
++------------------------------------------------------------------------+
+               |                        |                        |
+               v                        v                        v
++----------------------+   +----------------------+   +----------------------+
+| RouteSentinel Core   |   | Execution Layer      |   | Proofboard Layer     |
+| - scout              |   | - preview            |   | - decision json      |
+| - routecheck         |   | - execute            |   | - decision ndjson    |
+| - token scan         |   | - audit              |   | - agent scoreboard   |
+| - tx scan            |   | - uniswap-aware mode |   | - existing reports   |
++----------------------+   +----------------------+   +----------------------+
 ```
+
+---
+
+## Agent Flow (Implementation)
+
+```pseudo
+for each cycle:
+  intents = user_intent OR autonomous_candidate_queue
+  for each candidate in intents:
+    route = routecheck(candidate)
+    preview = preview(candidate)
+    decision = firewall(route, preview, policy)
+    if decision == APPROVE:
+      if mode == live: execute + audit
+      break
+    else:
+      retry next candidate (adaptive fallback)
+  write decision report + append ndjson + refresh agent scoreboard
+```
+
+---
+
+## Uniswap Integration
+
+Sentinel Agent is Uniswap-aware through route metadata from quote/preview.
+
+Policy modes:
+
+- `off`: no preference
+- `prefer`: prefer Uniswap route but allow safe fallback
+- `required`: block non-Uniswap route
+
+Example:
+
+```bash
+npm run agent -- \
+  --wallet <wallet> \
+  --mode dry \
+  --to <token> \
+  --uniswap-mode required
+```
+
+---
+
+## Demo (Hackathon Video Flow)
+
+### Case 1: Detected honeypot token -> BLOCKED
+
+- token scan critical risk
+- decision: `REJECT/HONEYPOT_OR_TOKEN_RISK`
+- no execution
+
+### Case 2: Route inefficiency detected -> BLOCKED
+
+- round-trip loss breaches threshold
+- decision: `REJECT/ROUTE_INEFFICIENT`
+- no execution
+
+### Case 3: Safe route -> EXECUTED via Uniswap
+
+- route + token + tx checks pass
+- decision: `APPROVE/SAFE_TO_EXECUTE`
+- on-chain execution in live mode
+
+Run synthetic full demo:
+
+```bash
+npm run demo
+```
+
+Run demo with live case-3 execution:
+
+```bash
+npm run demo -- --live yes --wallet <wallet> --safe-token <token>
+```
+
+---
+
+## Why This Wins
+
+### 1) X Layer Arena
+
+- real on-chain execution path
+- autonomous decision loop
+- clear safety + execution + proof narrative
+
+### 2) Most Active Agent
+
+- `--iterations` + `--interval-sec` enables continuous autonomous cycles
+- each cycle logs decision and can execute live when approved
+
+### 3) Best Uniswap Integration
+
+- route-level Uniswap policy enforcement (`prefer` / `required`)
+- execution decisions can be constrained to Uniswap routes
+
+---
 
 ## Quick Start
 
@@ -52,92 +172,113 @@ flowchart TD
 ```bash
 onchainos --version || curl -fsSL https://raw.githubusercontent.com/okx/onchainos-skills/main/install.sh | sh
 npx skills add okx/onchainos-skills --yes --global
+npx skills add Uniswap/uniswap-ai --yes --global
 cp .env.example .env
 npm install
 ```
 
-Get OnchainOS API key:
+OnchainOS API key:
 - https://web3.okx.com/onchainos/dev-portal
 
-Install Agentic Wallet:
+Agentic Wallet setup:
 - https://web3.okx.com/onchainos/dev-docs/wallet/install-your-agentic-wallet
 
-### 2) Configure env
+### 2) Base firewall commands
 
-```env
-ONCHAINOS_BIN=onchainos
-MAX_TEST_USD=0.30
+```bash
+npm run routecheck -- --from <from> --to <to> --amount <amt> --chain xlayer
+npm run preview -- --from <from> --to <to> --amount <amt> --chain xlayer --wallet <wallet>
 ```
 
-### 3) Run judge flow (dry-run first)
+### 3) Run autonomous agent (dry)
+
+```bash
+npm run agent -- --wallet <wallet> --mode dry --iterations 3 --interval-sec 10
+```
+
+### 4) Run autonomous agent (live)
+
+```bash
+npm run agent -- --wallet <wallet> --mode live --iterations 3 --interval-sec 60
+```
+
+### 5) Run judge flow
 
 ```bash
 npm run judge -- --wallet <wallet> --chain xlayer
-```
-
-### 4) Live micro-test (explicit opt-in)
-
-```bash
 npm run judge -- --wallet <wallet> --chain xlayer --confirm-live yes
 ```
 
-## CLI Commands
+---
 
-```bash
-npm run plan -- --from <from_token> --to <to_token> --amount <ui_amount> --chain <chain> [--wallet <wallet>]
-npm run simulate -- --from <from_token> --to <to_token> --amount <ui_amount> --chain <chain>
-npm run execute -- --from <from_token> --to <to_token> --amount <ui_amount> --chain <chain> --wallet <wallet> [--skip-tx-scan yes]
-npm run audit -- [--file <proof/reports/...-execute.json>]
+## Logging Format (Proofboard)
 
-npm run intel -- --to <to_token> --chain <chain>
-npm run scout -- --chain <chain> [--max-candidates 12]
-npm run phaseb -- --from <from_token> --to <to_token> --amount <ui_amount> --chain <chain> --wallet <wallet> --confirm-live yes [--force-intel yes]
-npm run phasec -- --from <from_token> --amount <ui_amount> --chain <chain> --wallet <wallet> [--quality-candidates 4] [--to <to_token>] [--confirm-live yes]
+Decision record (`proof/agent/*-decision.json`) includes:
 
-npm run proofboard
-npm run judge -- --wallet <wallet> --chain <chain> [--confirm-live yes]
-npm run wizard
+```json
+{
+  "command": "agent",
+  "cycle": 1,
+  "intent": { "from": "...", "to": "...", "amount": "..." },
+  "decision": {
+    "status": "APPROVE|REJECT",
+    "code": "SAFE_TO_EXECUTE|HONEYPOT_OR_TOKEN_RISK|ROUTE_INEFFICIENT|...",
+    "humanExplanation": "..."
+  },
+  "action": {
+    "executed": true,
+    "txHash": "0x...",
+    "auditVerdict": "excellent"
+  }
+}
 ```
 
-## Safety Model (Fail-Closed)
+Aggregates:
 
-Trade is blocked if any of these is true:
+- `proof/agent/decision-log.ndjson`
+- `proof/agent/scoreboard.json`
+- `proof/agent/scoreboard.md`
 
-- notional exceeds `MAX_TEST_USD`,
-- token-scan shows critical risk,
-- tx-scan shows critical risk,
-- live mode requested without `--confirm-live yes`.
+---
 
-## Proof Snapshot
+## Folder Structure
 
-From [`proof/reports/scoreboard.md`](./proof/reports/scoreboard.md):
+```text
+src/
+  cli.mjs                  # RouteSentinel core + new routecheck/preview
+  decision-engine.mjs      # Firewall decision logic
+  agent.mjs                # Autonomous agent loop
+  demo.mjs                 # 3-case demo runner
+  judge.mjs                # Judge report generator
+  wizard.mjs               # Interactive flow
+proof/
+  reports/                 # existing execution/audit reports
+  agent/                   # agent decision logs + scoreboard
+skills/
+  routesentinel-skill/     # plugin-store compatible skill package
+```
 
-- Execute reports: `3`
-- Audit reports: `3`
-- Passing audits: `3`
-- Pass rate: `100.00%`
-- Average execution ratio: `1.000000`
-- Total tested notional: `$0.643950`
+---
 
-Recent tx hashes:
+## Core Scripts
 
-- `0x77e54007313708b808c86163749f13e46bce754072379a042a4544aaf83d5fa6`
-- `0xa37c9d2c68368c9e488b4fe8348c34fee8089e0535be0c4777b35f118f5feac5`
-- `0x62106f435561236f864575997dd733fdf124291cb14594a5fd471198b4d139fe`
+```bash
+npm run demo
+npm run agent -- --wallet <wallet> --mode dry
+npm run routecheck -- --from <from> --to <to> --amount <amt> --chain xlayer
+npm run preview -- --from <from> --to <to> --amount <amt> --chain xlayer --wallet <wallet>
+npm run execute -- --from <from> --to <to> --amount <amt> --chain xlayer --wallet <wallet>
+npm run proofboard
+npm run judge -- --wallet <wallet> --chain xlayer
+```
 
-## Skill Package (Plugin-Store Style)
+---
 
-- [`skills/routesentinel-skill/plugin.yaml`](./skills/routesentinel-skill/plugin.yaml)
-- [`skills/routesentinel-skill/.claude-plugin/plugin.json`](./skills/routesentinel-skill/.claude-plugin/plugin.json)
-- [`skills/routesentinel-skill/SKILL.md`](./skills/routesentinel-skill/SKILL.md)
+## Positioning
 
-## Repository Layout
+This project is not just a swap safety tool.
 
-- `src/cli.mjs` - core engine and guardrails
-- `src/judge.mjs` - judge report generator
-- `src/wizard.mjs` - interactive run flow
-- `proof/reports/` - machine-readable artifacts
-- `submission/` - generated judge markdown
+It is an **Autonomous Agent Decision Firewall** that prevents financial loss before execution.
 
 ## Contact
 

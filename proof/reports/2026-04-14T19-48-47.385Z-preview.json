@@ -1,0 +1,152 @@
+{
+  "command": "preview",
+  "createdAt": "2026-04-14T19:48:47.385Z",
+  "request": {
+    "from": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "to": "0x74b7f16337b8972027f6196a17a631ac6de26d22",
+    "amount": "0.0025",
+    "chain": "xlayer",
+    "wallet": "0xd2f83a7ac9537d5392eaac58f0649c37825c8d74"
+  },
+  "guardrails": {
+    "maxTestUsd": 0.3,
+    "notionalUsd": 0.214375,
+    "passCap": true
+  },
+  "simulationReportFile": "/Users/sambit/Documents/New project/RouteSentinel-clone/proof/reports/2026-04-14T19-48-45.723Z-simulate.json",
+  "quoteSnapshot": {
+    "chainIndex": "196",
+    "contextSlot": 57424777,
+    "dexRouterList": [
+      {
+        "dexProtocol": {
+          "dexName": "Unknown Uniswap V3 Fork",
+          "percent": "100"
+        },
+        "fromToken": {
+          "decimal": "18",
+          "isHoneyPot": false,
+          "taxRate": "0",
+          "tokenContractAddress": "0xe538905cf8410324e03a5a23c1c177a474d59b2b",
+          "tokenSymbol": "WOKB",
+          "tokenUnitPrice": "85.75"
+        },
+        "fromTokenIndex": "0",
+        "toToken": {
+          "decimal": "6",
+          "isHoneyPot": false,
+          "taxRate": "0",
+          "tokenContractAddress": "0x74b7f16337b8972027f6196a17a631ac6de26d22",
+          "tokenSymbol": "USDC",
+          "tokenUnitPrice": "0.99979"
+        },
+        "toTokenIndex": "1"
+      }
+    ],
+    "estimateGasFee": "288000",
+    "fromToken": {
+      "decimal": "18",
+      "isHoneyPot": false,
+      "taxRate": "0",
+      "tokenContractAddress": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "tokenSymbol": "OKB",
+      "tokenUnitPrice": "85.75"
+    },
+    "fromTokenAmount": "2500000000000000",
+    "priceImpactPercent": "-0.22",
+    "router": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee--0x74b7f16337b8972027f6196a17a631ac6de26d22",
+    "swapMode": "exactIn",
+    "toToken": {
+      "decimal": "6",
+      "isHoneyPot": false,
+      "taxRate": "0",
+      "tokenContractAddress": "0x74b7f16337b8972027f6196a17a631ac6de26d22",
+      "tokenSymbol": "USDC",
+      "tokenUnitPrice": "0.99979"
+    },
+    "toTokenAmount": "213944",
+    "tradeFee": "0.00086755088784"
+  },
+  "tokenScanSnapshot": {
+    "buyTaxes": "0",
+    "chainId": "196",
+    "isAirdropScam": false,
+    "isChainSupported": true,
+    "isCounterfeit": false,
+    "isDumping": false,
+    "isFakeLiquidity": false,
+    "isFundLinkage": false,
+    "isHasAssetEditAuth": false,
+    "isHasBlockingHis": false,
+    "isHasFrozenAuth": false,
+    "isHoneypot": false,
+    "isLiquidityRemoval": false,
+    "isLowLiquidity": false,
+    "isMintable": true,
+    "isNotRenounced": false,
+    "isOverIssued": false,
+    "isPump": false,
+    "isRiskToken": false,
+    "isRubbishAirdrop": false,
+    "isVeryHighLpHolderProp": false,
+    "isVeryLowLpBurn": false,
+    "isWash": false,
+    "isWash2": false,
+    "sellTaxes": "0",
+    "tokenAddress": "0x74b7f16337b8972027f6196a17a631ac6de26d22"
+  },
+  "txPreview": {
+    "router": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee--0x74b7f16337b8972027f6196a17a631ac6de26d22",
+    "fromAmountRaw": "2500000000000000",
+    "toAmountRaw": "213944",
+    "priceImpactPercent": "-0.22",
+    "tradeFee": "0.00086755088784",
+    "minReceiveAmount": "212232",
+    "gas": "288000",
+    "gasPrice": "59693810",
+    "to": "0xD1b8997AaC08c619d40Be2e4284c9C72cAB33954",
+    "value": "2500000000000000",
+    "calldataBytes": 965
+  },
+  "txScan": {
+    "skipped": false,
+    "reason": null,
+    "result": {
+      "action": "",
+      "riskItemDetail": [],
+      "simulator": {
+        "gasLimit": null,
+        "gasUsed": null,
+        "revertReason": ""
+      },
+      "warnings": [
+        "evm CallWithContext debug_traceCall node failed: invalid argument 0: json: cannot unmarshal hex string without 0x prefix into Go struct field TransactionArgs.gasPrice of type *hexutil.Big"
+      ]
+    },
+    "error": null
+  },
+  "txScanGuard": {
+    "blocked": false,
+    "reason": "ok",
+    "riskCount": 0,
+    "warningCount": 1,
+    "warnings": [
+      "evm CallWithContext debug_traceCall node failed: invalid argument 0: json: cannot unmarshal hex string without 0x prefix into Go struct field TransactionArgs.gasPrice of type *hexutil.Big"
+    ],
+    "revertReason": null
+  },
+  "executionHints": {
+    "dexNames": [
+      "Unknown Uniswap V3 Fork"
+    ],
+    "hasUniswapRoute": true,
+    "route": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee--0x74b7f16337b8972027f6196a17a631ac6de26d22"
+  },
+  "recommendation": {
+    "allow": true,
+    "verdict": "approve",
+    "reasons": [
+      "Preview passed tx-scan risk gate."
+    ]
+  }
+}

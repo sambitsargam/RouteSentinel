@@ -1,7 +1,7 @@
 schema_version: 1
 name: routesentinel-skill
-version: "1.0.0"
-description: "Execution-aware swap safety skill for X Layer using OnchainOS with route-quality checks, risk gates, and audit proofs."
+version: "1.1.0"
+description: "Sentinel Agent: autonomous trade firewall for X Layer using OnchainOS with route-quality checks, risk gates, and proof logs."
 author:
   name: "Sambit"
   github: "sambitsargam"
