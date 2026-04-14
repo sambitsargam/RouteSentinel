@@ -1,0 +1,25 @@
+{
+  "auditedAt": "2026-04-14T18:48:48.804Z",
+  "reportFile": "/Users/sambit/Documents/New project/RouteSentinel-clone/proof/reports/2026-04-14T18-48-48.803Z-execute.json",
+  "txHash": "0x77e54007313708b808c86163749f13e46bce754072379a042a4544aaf83d5fa6",
+  "fromSymbol": "OKB",
+  "toSymbol": "XDOG",
+  "fromAmountRaw": "2500000000000000",
+  "toAmountRaw": "51054173432286134659",
+  "priceImpact": "-0.08",
+  "gasUsed": "288000",
+  "capUsd": 0.3,
+  "notionalUsd": 0.21397500000000003,
+  "expectedToRaw": "51054173432286134659",
+  "actualToRaw": "51054173432286134659",
+  "expectedToUi": 51.054173432286134,
+  "actualToUi": 51.054173432286134,
+  "executionRatio": 1,
+  "verdict": "excellent",
+  "txScanBlocked": false,
+  "txScanRiskCount": 0,
+  "txScanWarnings": [
+    "evm CallWithContext debug_traceCall node failed: invalid argument 0: json: cannot unmarshal hex string without 0x prefix into Go struct field TransactionArgs.gasPrice of type *hexutil.Big"
+  ],
+  "txScanRevertReason": null
+}

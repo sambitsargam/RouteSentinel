@@ -1,0 +1,237 @@
+{
+  "command": "intel",
+  "createdAt": "2026-04-14T18:48:45.327Z",
+  "request": {
+    "to": "0x0cc24c51bf89c00c5affbfcf5e856c25ecbdb48e",
+    "chain": "xlayer"
+  },
+  "upstream": {
+    "tokenScan": {
+      "ok": true,
+      "error": null
+    },
+    "priceInfo": {
+      "ok": true,
+      "error": null
+    },
+    "advancedInfo": {
+      "ok": true,
+      "error": null
+    },
+    "signal": {
+      "ok": true,
+      "error": null
+    },
+    "leaderboard": {
+      "ok": true,
+      "error": null
+    },
+    "tracker": {
+      "ok": true,
+      "error": null
+    }
+  },
+  "tokenScan": {
+    "buyTaxes": "0",
+    "chainId": "196",
+    "isAirdropScam": false,
+    "isChainSupported": true,
+    "isCounterfeit": false,
+    "isDumping": false,
+    "isFakeLiquidity": false,
+    "isFundLinkage": false,
+    "isHasAssetEditAuth": false,
+    "isHasBlockingHis": false,
+    "isHasFrozenAuth": false,
+    "isHoneypot": false,
+    "isLiquidityRemoval": false,
+    "isLowLiquidity": false,
+    "isMintable": false,
+    "isNotRenounced": false,
+    "isOverIssued": false,
+    "isPump": false,
+    "isRiskToken": false,
+    "isRubbishAirdrop": false,
+    "isVeryHighLpHolderProp": false,
+    "isVeryLowLpBurn": false,
+    "isWash": false,
+    "isWash2": false,
+    "sellTaxes": "0",
+    "tokenAddress": "0x0cc24c51bf89c00c5affbfcf5e856c25ecbdb48e"
+  },
+  "tokenPriceInfo": {
+    "chainIndex": "196",
+    "circSupply": "997777184.183486599000000000",
+    "holders": "35599",
+    "liquidity": "502613.11764762293197009389616906855080545544955750305809",
+    "marketCap": "4178594.807283617407927371",
+    "maxPrice": "0.004644267996500767225332047251134886",
+    "minPrice": "0.004053686363338627",
+    "price": "0.004187903745968191223583148008239463",
+    "priceChange1H": "-0.58",
+    "priceChange24H": "2.95",
+    "priceChange4H": "-3.56",
+    "priceChange5M": "0",
+    "time": "1776192523842",
+    "tokenContractAddress": "0x0cc24c51bf89c00c5affbfcf5e856c25ecbdb48e",
+    "tradeNum": "22865775.233690796806415887",
+    "txs1H": "6",
+    "txs24H": "1090",
+    "txs4H": "119",
+    "txs5M": "0",
+    "volume1H": "316.8149112094934672",
+    "volume24H": "98750.571237851917577475",
+    "volume4H": "9476.119557593860649734",
+    "volume5M": "0"
+  },
+  "tokenAdvancedInfo": {
+    "bundleHoldingPercent": "0.007",
+    "chainIndex": "196",
+    "createTime": "",
+    "creatorAddress": "",
+    "devCreateTokenCount": "",
+    "devHoldingPercent": "0",
+    "devLaunchedTokenCount": "0",
+    "devRugPullTokenCount": "",
+    "isInternal": false,
+    "lpBurnedPercent": "",
+    "progress": "",
+    "protocolId": "",
+    "riskControlLevel": "1",
+    "sniperHoldingPercent": "",
+    "snipersClearAddressCount": "",
+    "snipersTotal": "1",
+    "suspiciousHoldingPercent": "",
+    "tokenContractAddress": "0x0cc24c51bf89c00c5affbfcf5e856c25ecbdb48e",
+    "tokenTags": [
+      "dexBoost"
+    ],
+    "top10HoldPercent": "9.4449",
+    "totalFee": "0.049790744897974319"
+  },
+  "signalSummary": {
+    "count": 0,
+    "sample": []
+  },
+  "leaderboardSummary": {
+    "scannedRows": 50,
+    "mentions": 0,
+    "avgTokenPnlUsd": null,
+    "avgWalletWinRatePercent": null,
+    "topMentions": []
+  },
+  "trackerSummary": {
+    "scannedTrades": 100,
+    "mentions": 27,
+    "buyCount": 0,
+    "sellCount": 27,
+    "buySellBias": "sell",
+    "netRealizedPnlUsd": 720.0775439319207,
+    "totalQuoteTokenAmount": 111.60677587816159,
+    "recent": [
+      {
+        "tradeTime": "1776184780000",
+        "tradeType": "2",
+        "walletAddress": "0x998c240d7802a9578283ce454ff5bf83e6eacc4a",
+        "quoteTokenAmount": 2.940962098566038,
+        "quoteTokenSymbol": "X Layer",
+        "realizedPnlUsd": 3.006582241340855,
+        "txHash": "0x623b489fd0021408b9938c75ac3b345737d82a784fad9191f8b38156e9f0ceb5"
+      },
+      {
+        "tradeTime": "1776184780000",
+        "tradeType": "2",
+        "walletAddress": "0x998c240d7802a9578283ce454ff5bf83e6eacc4a",
+        "quoteTokenAmount": 2.9417549991704193,
+        "quoteTokenSymbol": "X Layer",
+        "realizedPnlUsd": 2.8744020121171885,
+        "txHash": "0x623b489fd0021408b9938c75ac3b345737d82a784fad9191f8b38156e9f0ceb5"
+      },
+      {
+        "tradeTime": "1776178864000",
+        "tradeType": "2",
+        "walletAddress": "0x60e6a8e31f7115a7c511faaf4e6a7c5812122abc",
+        "quoteTokenAmount": 2.3211361738767162,
+        "quoteTokenSymbol": "X Layer",
+        "realizedPnlUsd": 7.405669667136298,
+        "txHash": "0x38fa940d6a3d95d0266c63ac918458a69e6a6043975321772867c7929efd495e"
+      },
+      {
+        "tradeTime": "1776178864000",
+        "tradeType": "2",
+        "walletAddress": "0x60e6a8e31f7115a7c511faaf4e6a7c5812122abc",
+        "quoteTokenAmount": 2.4692318779639577,
+        "quoteTokenSymbol": "X Layer",
+        "realizedPnlUsd": 8.00707143132674,
+        "txHash": "0x38fa940d6a3d95d0266c63ac918458a69e6a6043975321772867c7929efd495e"
+      },
+      {
+        "tradeTime": "1776177562000",
+        "tradeType": "2",
+        "walletAddress": "0xf90503262ea600659332873a4a6cac27737c0d70",
+        "quoteTokenAmount": 4.905914147166635,
+        "quoteTokenSymbol": "X Layer",
+        "realizedPnlUsd": 26.392979088024482,
+        "txHash": "0xdae527934933982ff6d782e8b14bfa4dab482fef7360820f0d2bd5bae35fcbac"
+      },
+      {
+        "tradeTime": "1776177562000",
+        "tradeType": "2",
+        "walletAddress": "0xf90503262ea600659332873a4a6cac27737c0d70",
+        "quoteTokenAmount": 4.181000304475408,
+        "quoteTokenSymbol": "X Layer",
+        "realizedPnlUsd": 22.646572730203754,
+        "txHash": "0xdae527934933982ff6d782e8b14bfa4dab482fef7360820f0d2bd5bae35fcbac"
+      },
+      {
+        "tradeTime": "1776175753000",
+        "tradeType": "2",
+        "walletAddress": "0xe0b3d95001ade173ada1c7a3e0fb1b653da44475",
+        "quoteTokenAmount": 1.0702292523565986,
+        "quoteTokenSymbol": "X Layer",
+        "realizedPnlUsd": 10.412643248730967,
+        "txHash": "0x882b6a52bbf306112435ea53f8d1eae63d157078b57bed58a943bc3308939a41"
+      },
+      {
+        "tradeTime": "1776175384000",
+        "tradeType": "2",
+        "walletAddress": "0xad92af29ea19f5661a7735838409a8a517fa9590",
+        "quoteTokenAmount": 0.5306613635762696,
+        "quoteTokenSymbol": "X Layer",
+        "realizedPnlUsd": 4.469159118063783,
+        "txHash": "0x0e148006599bcc60e55a42b5be86cd807679a49907d29f38e9bb9d8cca4659c3"
+      },
+      {
+        "tradeTime": "1776175384000",
+        "tradeType": "2",
+        "walletAddress": "0xad92af29ea19f5661a7735838409a8a517fa9590",
+        "quoteTokenAmount": 0.9030293710594629,
+        "quoteTokenSymbol": "X Layer",
+        "realizedPnlUsd": 7.563091174334513,
+        "txHash": "0x0e148006599bcc60e55a42b5be86cd807679a49907d29f38e9bb9d8cca4659c3"
+      },
+      {
+        "tradeTime": "1776175145000",
+        "tradeType": "2",
+        "walletAddress": "0x436ebb7a0e3d2908ab85e66c04d12b27eee32773",
+        "quoteTokenAmount": 6.612266514720673,
+        "quoteTokenSymbol": "X Layer",
+        "realizedPnlUsd": -7.560612511797916,
+        "txHash": "0xa9a337da3f710df61a140decf0f62159cb0e2f808de7a7c23addbc486a20df2b"
+      }
+    ]
+  },
+  "recommendation": {
+    "allowLiveTest": true,
+    "verdict": "go",
+    "score": 88,
+    "criticalTokenRisk": false,
+    "reasons": [
+      "Token scan did not flag critical risk.",
+      "Risk control level is low.",
+      "Liquidity is healthy.",
+      "Top-10 holder concentration is low.",
+      "Tracker bias is net sell."
+    ]
+  }
+}
