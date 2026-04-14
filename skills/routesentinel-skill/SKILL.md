@@ -23,22 +23,46 @@ metadata:
 - You want a micro-test execution workflow with strict spend limits.
 - You need proof artifacts for hackathon judging and public transparency.
 
-## Prerequisites
+## Quick Start (Required Order)
 
-1. Install dependencies and configure `.env`:
+1. Install `onchainos` CLI (if missing):
+
+```bash
+onchainos --version || curl -fsSL https://raw.githubusercontent.com/okx/onchainos-skills/main/install.sh | sh
+```
+
+2. Install OnchainOS skills:
+
+```bash
+npx skills add okx/onchainos-skills --yes --global
+```
+
+3. Get your OnchainOS API key from the Dev Portal:
+
+- https://web3.okx.com/onchainos/dev-portal
+
+4. Install and configure your Agentic Wallet:
+
+- https://web3.okx.com/onchainos/dev-docs/wallet/install-your-agentic-wallet
+
+5. Prepare this project:
 
 ```bash
 cp .env.example .env
 npm install
 ```
 
-2. Ensure `onchainos` is available:
+6. Configure environment values in `.env`:
+
+- `ONCHAINOS_API_KEY=<your_key>`
+- `ONCHAINOS_BIN=onchainos`
+- `MAX_TEST_USD=0.30`
+
+7. Start with dry-run flow first:
 
 ```bash
-onchainos --version
+npm run judge -- --wallet <wallet> --chain xlayer
 ```
-
-3. Set your wallet and API configuration (outside source control).
 
 ## Core Commands
 
