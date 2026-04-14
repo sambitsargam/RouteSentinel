@@ -17,7 +17,7 @@ npm run phaseb -- --from <from_token> --to <to_token> --amount <ui_amount> --cha
 
 # Phase C auto-selection
 npm run scout -- --chain <chain> [--max-candidates 12]
-npm run phasec -- --from <from_token> --amount <ui_amount> --chain <chain> --wallet <wallet> [--to <to_token>] [--confirm-live yes]
+npm run phasec -- --from <from_token> --amount <ui_amount> --chain <chain> --wallet <wallet> [--quality-candidates 4] [--to <to_token>] [--confirm-live yes]
 ```
 
 ## What Phase B Adds
@@ -31,6 +31,7 @@ npm run phasec -- --from <from_token> --amount <ui_amount> --chain <chain> --wal
 
 - `scout`: auto-builds a ranked token shortlist from live signal, leaderboard, and tracker feeds.
 - `phasec`: auto-picks the best candidate and prepares a dry-run by default.
+- `phasec` uses route-quality checks (forward quote + reverse quote) so token choice is based on execution viability, not only signal score.
 - `phasec` only executes a live swap when `--confirm-live yes` is explicitly passed.
 
 ## Safety Guardrails

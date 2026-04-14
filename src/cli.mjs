@@ -23,7 +23,7 @@ Commands:
   scout      --chain <chain> [--max-candidates <n>] [--min-signal-amount-usd <usd>] [--time-frame <1..5>] [--sort-by <1..5>] [--include <0xaddr,...>]
   proofboard # aggregate execute/audit reports into a scoreboard
   phaseb     --from <addr> --to <addr> --amount <ui_amount> --chain <chain> --wallet <addr> --confirm-live yes [--force-intel yes]
-  phasec     --from <addr> --amount <ui_amount> --chain <chain> --wallet <addr> [--max-candidates <n>] [--to <addr>] [--confirm-live yes]
+  phasec     --from <addr> --amount <ui_amount> --chain <chain> --wallet <addr> [--max-candidates <n>] [--quality-candidates <n>] [--to <addr>] [--confirm-live yes]
 
 Examples:
   npm run simulate -- --from 0xeeee... --to 0x74b7... --amount 0.0025 --chain xlayer
@@ -31,7 +31,7 @@ Examples:
   npm run intel -- --to 0x74b7... --chain xlayer
   npm run scout -- --chain xlayer --max-candidates 10
   npm run phaseb -- --from 0xeeee... --to 0x74b7... --amount 0.0025 --chain xlayer --wallet 0xabc... --confirm-live yes
-  npm run phasec -- --from 0xeeee... --amount 0.0025 --chain xlayer --wallet 0xabc...
+  npm run phasec -- --from 0xeeee... --amount 0.0025 --chain xlayer --wallet 0xabc... --quality-candidates 4
 `;
 
 function parseArgs(argv) {
@@ -95,6 +95,15 @@ function parseCsv(value) {
     .split(",")
     .map((item) => item.trim())
     .filter(Boolean);
+}
+
+function toReadableAmount(value, maxDecimals = 12) {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric) || numeric <= 0) return "0";
+  const decimals = clamp(maxDecimals, 2, 18);
+  return numeric
+    .toFixed(decimals)
+    .replace(/\.?0+$/, "");
 }
 
 function normalizeTokenAddress(value) {
@@ -221,6 +230,78 @@ function getQuote(opts) {
     throw new Error("No quote route returned.");
   }
   return data[0];
+}
+
+function evaluateRouteQuality(opts) {
+  const forward = getQuote({
+    from: opts.from,
+    to: opts.to,
+    amount: String(opts.amount),
+    chain: opts.chain
+  });
+
+  const fromRaw = toNumber(forward.fromTokenAmount);
+  const toRaw = toNumber(forward.toTokenAmount);
+  const fromDecimals = toNumber(forward.fromToken?.decimal);
+  const toDecimals = toNumber(forward.toToken?.decimal);
+  if (
+    fromRaw === null ||
+    toRaw === null ||
+    fromRaw <= 0 ||
+    toRaw <= 0 ||
+    fromDecimals === null ||
+    toDecimals === null
+  ) {
+    throw new Error("Invalid forward quote shape for route-quality check.");
+  }
+
+  const toUi = toRaw / 10 ** toDecimals;
+  if (!Number.isFinite(toUi) || toUi <= 0) {
+    throw new Error("Forward quote produced non-positive output.");
+  }
+
+  const reverseAmount = toReadableAmount(toUi, Math.min(12, toDecimals));
+  const reverse = getQuote({
+    from: opts.to,
+    to: opts.from,
+    amount: reverseAmount,
+    chain: opts.chain
+  });
+
+  const reverseToRaw = toNumber(reverse.toTokenAmount);
+  if (reverseToRaw === null || reverseToRaw <= 0) {
+    throw new Error("Invalid reverse quote shape for route-quality check.");
+  }
+
+  const roundTripRatio = reverseToRaw / fromRaw;
+  const roundTripLossPercent = (1 - roundTripRatio) * 100;
+  const reverseOutUi = reverseToRaw / 10 ** fromDecimals;
+
+  return {
+    forward: {
+      fromSymbol: forward.fromToken?.tokenSymbol || null,
+      toSymbol: forward.toToken?.tokenSymbol || null,
+      fromRaw: forward.fromTokenAmount || null,
+      toRaw: forward.toTokenAmount || null,
+      priceImpactPercent: toNumber(forward.priceImpactPercent),
+      tradeFee: toNumber(forward.tradeFee)
+    },
+    reverse: {
+      fromSymbol: reverse.fromToken?.tokenSymbol || null,
+      toSymbol: reverse.toToken?.tokenSymbol || null,
+      fromRaw: reverse.fromTokenAmount || null,
+      toRaw: reverse.toTokenAmount || null,
+      priceImpactPercent: toNumber(reverse.priceImpactPercent),
+      tradeFee: toNumber(reverse.tradeFee)
+    },
+    roundTrip: {
+      ratio: roundTripRatio,
+      lossPercent: roundTripLossPercent,
+      reverseInputUi: toUi,
+      reverseInputReadable: reverseAmount,
+      reverseOutputUi: reverseOutUi
+    }
+  };
 }
 
 function getSwapPreview(opts) {
@@ -1379,15 +1460,70 @@ function phasec(opts) {
   });
 
   const manualToken = normalizeTokenAddress(opts.to);
-  const autoToken = scoutResult.report.nextCandidate?.tokenAddress || null;
-  const selectedToken = manualToken || autoToken;
+  const ranking = scoutResult.report.ranking || [];
+  const qualityCandidates = clamp(
+    Math.trunc(toNumber(opts["quality-candidates"]) || 4),
+    1,
+    10
+  );
 
-  if (!selectedToken) {
+  const candidatePool = manualToken
+    ? [manualToken]
+    : ranking
+        .filter((item) => item.recommendation?.allowLiveTest)
+        .slice(0, qualityCandidates)
+        .map((item) => item.tokenAddress);
+
+  if (!candidatePool.length && !manualToken) {
+    const fallback = ranking.slice(0, qualityCandidates).map((item) => item.tokenAddress);
+    candidatePool.push(...fallback);
+  }
+
+  if (!candidatePool.length) {
     throw new Error("Phase C could not find a candidate token. Try increasing --max-candidates.");
   }
 
+  const routeChecks = [];
+  for (const tokenAddress of candidatePool) {
+    const routeCall = safeDataCall("routeQuality", () =>
+      evaluateRouteQuality({
+        from: opts.from,
+        to: tokenAddress,
+        amount: String(opts.amount),
+        chain: opts.chain
+      })
+    );
+
+    const scoutMeta = ranking.find((item) => item.tokenAddress === tokenAddress) || null;
+    routeChecks.push({
+      tokenAddress,
+      symbol: scoutMeta?.symbol || null,
+      ok: routeCall.ok,
+      error: routeCall.error,
+      quality: routeCall.data,
+      scoutScore: toNumber(scoutMeta?.recommendation?.score),
+      scoutVerdict: scoutMeta?.recommendation?.verdict || null
+    });
+  }
+
+  const viableRoutes = routeChecks
+    .filter((item) => item.ok && item.quality?.roundTrip?.ratio !== null)
+    .sort((a, b) => {
+      const ratioDiff =
+        (b.quality?.roundTrip?.ratio || 0) - (a.quality?.roundTrip?.ratio || 0);
+      if (Math.abs(ratioDiff) > 1e-12) return ratioDiff;
+      return (b.scoutScore || 0) - (a.scoutScore || 0);
+    });
+
+  const selectedRoute = viableRoutes[0] || routeChecks.find((item) => item.ok) || routeChecks[0];
+  const selectedToken = selectedRoute?.tokenAddress || manualToken || scoutResult.report.nextCandidate?.tokenAddress || null;
+
+  if (!selectedToken) {
+    throw new Error("Phase C could not select a token after route-quality checks.");
+  }
+
   const selectedFromScout =
-    scoutResult.report.ranking.find((item) => item.tokenAddress === selectedToken) || null;
+    ranking.find((item) => item.tokenAddress === selectedToken) || null;
 
   if (!isYes(opts["confirm-live"])) {
     const report = {
@@ -1405,6 +1541,13 @@ function phasec(opts) {
       scout: {
         file: scoutResult.file,
         candidateUniverseSize: scoutResult.report.candidateUniverseSize
+      },
+      selection: {
+        candidatePool,
+        qualityCandidates,
+        selectedBy: selectedRoute?.ok ? "route_quality" : "fallback",
+        selectedRouteCheck: selectedRoute || null,
+        routeChecks
       },
       selectedCandidate: selectedFromScout,
       nextAction:
@@ -1435,6 +1578,13 @@ function phasec(opts) {
     scout: {
       file: scoutResult.file,
       candidateUniverseSize: scoutResult.report.candidateUniverseSize
+    },
+    selection: {
+      candidatePool,
+      qualityCandidates,
+      selectedBy: selectedRoute?.ok ? "route_quality" : "fallback",
+      selectedRouteCheck: selectedRoute || null,
+      routeChecks
     },
     selectedCandidate: selectedFromScout,
     phaseb: {

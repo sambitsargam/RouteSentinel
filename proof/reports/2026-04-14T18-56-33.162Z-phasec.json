@@ -1,0 +1,197 @@
+{
+  "command": "phasec",
+  "createdAt": "2026-04-14T18:56:33.162Z",
+  "mode": "dry_run",
+  "request": {
+    "from": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "amount": "0.0025",
+    "chain": "xlayer",
+    "wallet": "0xd2f83a7ac9537d5392eaac58f0649c37825c8d74",
+    "to": "0x0cc24c51bf89c00c5affbfcf5e856c25ecbdb48e",
+    "manualTokenOverride": false
+  },
+  "scout": {
+    "file": "/Users/sambit/Documents/New project/RouteSentinel-clone/proof/reports/2026-04-14T18-56-31.069Z-scout.json",
+    "candidateUniverseSize": 35
+  },
+  "selection": {
+    "candidatePool": [
+      "0x0cc24c51bf89c00c5affbfcf5e856c25ecbdb48e",
+      "0x256a55efa042a5e230078df730ffba53f5a77777"
+    ],
+    "qualityCandidates": 4,
+    "selectedBy": "route_quality",
+    "selectedRouteCheck": {
+      "tokenAddress": "0x0cc24c51bf89c00c5affbfcf5e856c25ecbdb48e",
+      "symbol": "XDOG",
+      "ok": true,
+      "error": null,
+      "quality": {
+        "forward": {
+          "fromSymbol": "OKB",
+          "toSymbol": "XDOG",
+          "fromRaw": "2500000000000000",
+          "toRaw": "51054004094833059913",
+          "priceImpactPercent": -0.11,
+          "tradeFee": 0.0004879328046528
+        },
+        "reverse": {
+          "fromSymbol": "XDOG",
+          "toSymbol": "OKB",
+          "fromRaw": "51054004094833000000",
+          "toRaw": "2490601465862520",
+          "priceImpactPercent": -0.27,
+          "tradeFee": 0.0004879328046528
+        },
+        "roundTrip": {
+          "ratio": 0.996240586345008,
+          "lossPercent": 0.37594136549919943,
+          "reverseInputUi": 51.05400409483306,
+          "reverseInputReadable": "51.054004094833",
+          "reverseOutputUi": 0.00249060146586252
+        }
+      },
+      "scoutScore": 88,
+      "scoutVerdict": "go"
+    },
+    "routeChecks": [
+      {
+        "tokenAddress": "0x0cc24c51bf89c00c5affbfcf5e856c25ecbdb48e",
+        "symbol": "XDOG",
+        "ok": true,
+        "error": null,
+        "quality": {
+          "forward": {
+            "fromSymbol": "OKB",
+            "toSymbol": "XDOG",
+            "fromRaw": "2500000000000000",
+            "toRaw": "51054004094833059913",
+            "priceImpactPercent": -0.11,
+            "tradeFee": 0.0004879328046528
+          },
+          "reverse": {
+            "fromSymbol": "XDOG",
+            "toSymbol": "OKB",
+            "fromRaw": "51054004094833000000",
+            "toRaw": "2490601465862520",
+            "priceImpactPercent": -0.27,
+            "tradeFee": 0.0004879328046528
+          },
+          "roundTrip": {
+            "ratio": 0.996240586345008,
+            "lossPercent": 0.37594136549919943,
+            "reverseInputUi": 51.05400409483306,
+            "reverseInputReadable": "51.054004094833",
+            "reverseOutputUi": 0.00249060146586252
+          }
+        },
+        "scoutScore": 88,
+        "scoutVerdict": "go"
+      },
+      {
+        "tokenAddress": "0x256a55efa042a5e230078df730ffba53f5a77777",
+        "symbol": "AI",
+        "ok": true,
+        "error": null,
+        "quality": {
+          "forward": {
+            "fromSymbol": "OKB",
+            "toSymbol": "AI",
+            "fromRaw": "2500000000000000",
+            "toRaw": "3677791147129212214025",
+            "priceImpactPercent": -0.46,
+            "tradeFee": 0.0004879328046528
+          },
+          "reverse": {
+            "fromSymbol": "AI",
+            "toSymbol": "OKB",
+            "fromRaw": "3677791147129212000000",
+            "toRaw": "2338040547609638",
+            "priceImpactPercent": -0.14,
+            "tradeFee": 0.0004879328046528
+          },
+          "roundTrip": {
+            "ratio": 0.9352162190438552,
+            "lossPercent": 6.478378095614479,
+            "reverseInputUi": 3677.7911471292123,
+            "reverseInputReadable": "3677.791147129212",
+            "reverseOutputUi": 0.002338040547609638
+          }
+        },
+        "scoutScore": 67,
+        "scoutVerdict": "caution"
+      }
+    ]
+  },
+  "selectedCandidate": {
+    "tokenAddress": "0x0cc24c51bf89c00c5affbfcf5e856c25ecbdb48e",
+    "symbol": "XDOG",
+    "sources": [
+      "tracker"
+    ],
+    "activity": {
+      "rawScore": 54,
+      "signalCount": 0,
+      "leaderboardMentions": 0,
+      "trackerMentions": 27,
+      "manualPinned": false
+    },
+    "market": {
+      "price": 0.0041921156609040855,
+      "liquidity": 501202.38283949334,
+      "marketCap": 4182797.3599083745,
+      "holders": 35600,
+      "priceChange24H": 3.05
+    },
+    "risk": {
+      "riskControlLevel": 1,
+      "top10HoldPercent": 9.4449,
+      "criticalTokenRisk": false,
+      "tokenScan": {
+        "isHoneypot": false,
+        "isRiskToken": false,
+        "isRubbishAirdrop": false,
+        "isLowLiquidity": false,
+        "isMintable": false
+      }
+    },
+    "signalSummary": {
+      "count": 0,
+      "avgAmountUsd": null,
+      "maxAmountUsd": null,
+      "avgTriggerWalletCount": null
+    },
+    "leaderboardSummary": {
+      "mentions": 0,
+      "avgTokenPnlUsd": null,
+      "avgWalletWinRatePercent": null,
+      "topWallets": []
+    },
+    "trackerSummary": {
+      "mentions": 27,
+      "buyCount": 0,
+      "sellCount": 27,
+      "buySellBias": "sell",
+      "netRealizedPnlUsd": 720.0775439319207
+    },
+    "recommendation": {
+      "allowLiveTest": true,
+      "verdict": "go",
+      "score": 88,
+      "criticalTokenRisk": false,
+      "reasons": [
+        "Token scan did not flag critical risk.",
+        "Risk control level is low.",
+        "Liquidity is healthy.",
+        "Top-10 holder concentration is low.",
+        "Tracker bias is net sell."
+      ]
+    },
+    "upstream": {
+      "tokenScanOk": true,
+      "priceInfoOk": true,
+      "advancedInfoOk": true
+    }
+  },
+  "nextAction": "Run again with --confirm-live yes to execute the selected token through Phase B pipeline."
+}
