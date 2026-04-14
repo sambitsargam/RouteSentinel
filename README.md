@@ -39,7 +39,6 @@ npm run wizard
 
 ## Judge/User Packaging
 
-- `SKILL.md`: quick skill-style guide for operators.
 - `SUBMISSION.md`: final hackathon submission narrative.
 - `skills/routesentinel-skill/`: official plugin-store style skill package (`plugin.yaml`, `.claude-plugin/plugin.json`, `SKILL.md`).
 - `judge` command: one-command run that executes phase flow + writes a judge-ready report in `submission/`.
